@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Timer - DotStyle Pro</title>
+    <style>
+        :root {
+            --bg-color: #0f172a; 
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --primary: #38bdf8;   
+            --success: #4ade80;   
+            --warning: #f59e0b;
+            --danger: #f87171;
+            --dot-empty: #334155; 
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 480px; background: var(--card-bg); padding: 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        
+        h1, h2 { text-align: center; margin-bottom: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* ボタンデザイン */
+        button { width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background: var(--primary); color: #0f172a; }
+        .btn-secondary { background: #334155; color: var(--text-main); }
+        .btn-success { background: var(--success); color: #0f172a; }
+        .btn-danger { background: var(--danger); color: #0f172a; }
+        .btn-warning { background: var(--warning); color: #0f172a; }
+        button:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* ナビゲーションボタン */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+        .btn-nav { padding: 10px; font-size: 14px; background: #334155; color: var(--text-sub); border-radius: 10px; margin: 0; }
+        .btn-nav:hover { color: var(--text-main); background: #475569; }
+
+        /* セレクトボックス */
+        select { width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; border: 2px solid #334155; margin-bottom: 20px; background: #0f172a; color: var(--text-main); appearance: none; -webkit-appearance: none; cursor: pointer; }
+
+        /* タイマー・表示エリア */
+        .timer-display { text-align: center; margin: 20px 0; }
+        .phase-title { font-size: 22px; font-weight: 700; color: var(--text-main); min-height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.4; }
+        .next-phase { font-size: 14px; color: var(--text-sub); margin-top: 8px; min-height: 20px; text-align: center; }
+        
+        /* メインボックス切り替え */
+        .display-main-box { height: 130px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .time-left { font-size: 96px; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: var(--primary); line-height: 1; }
+        .btn-done-action { background: var(--success); color: #0f172a; font-size: 28px; font-weight: 800; border-radius: 20px; height: 100px; width: 80%; box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3); margin: 0 auto; }
+        
+        .direction-box { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 70px; margin: 15px 0; background: #0f172a; border-radius: 16px; border: 2px dashed #334155; min-height: 104px; }
+        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* DotHabit風カレンダー */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .day-name { font-weight: 600; color: var(--text-sub); font-size: 12px; padding-bottom: 8px; }
+        
+        .day-cell { aspect-ratio: 1; border-radius: 50%; background: var(--dot-empty); font-size: 11px; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+        .day-cell.empty { background: transparent; cursor: default; }
+        .day-cell:not(.empty):hover { border-color: var(--primary); }
+        
+        .day-cell.completed { background: var(--success) !important; color: #0f172a !important; font-weight: bold; }
+        .day-cell.interrupted { background: var(--warning) !important; color: #0f172a !important; font-weight: bold; }
+
+        .log-details { margin-top: 24px; padding: 16px; background: #0f172a; border-radius: 14px; font-size: 14px; min-height: 70px; border: 1px solid #334155; color: var(--text-sub); }
+        .log-details strong { color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- スタート画面 -->
+    <div id="screen-start" class="screen active">
+        <h1>Training Timer</h1>
+        <div style="margin-bottom: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">メニューを選んでスタート</div>
+        <select id="menu-select"><option value="">読み込み中...</option></select>
+        <button class="btn-primary" onclick="startTraining()">トレーニング開始</button>
+        <button class="btn-secondary" onclick="changeScreen('screen-record'); renderCalendar();">Record</button>
+    </div>
+
+    <!-- トレーニング実施画面 -->
+    <div id="screen-timer" class="screen">
+        <div class="nav-grid">
+            <button class="btn-nav" onclick="prevMenu()">◀ 前のメニュー</button>
+            <button class="btn-nav" onclick="nextMenu()">次のメニュー ▶</button>
+        </div>
+
+        <div class="timer-display">
+            <div id="current-phase" class="phase-title">ウォームアップ</div>
+            <div id="next-phase" class="next-phase">次: ---</div>
+            
+            <div class="display-main-box">
+                <div id="time-left" class="time-left">00</div>
+                <button id="btn-done" class="btn-done-action" onclick="pressDone()" style="display:none;">DONE</button>
+            </div>
+
+            <div id="direction-arrow" class="direction-box"></div>
+        </div>
+        <div class="control-grid">
+            <button id="btn-pause" class="btn-warning" onclick="togglePause()">一時停止</button>
+            <button class="btn-danger" onclick="interruptTraining()">中断</button>
+        </div>
+    </div>
+
+    <!-- 記録画面 -->
+    <div id="screen-record" class="screen">
+        <h2>Training Record</h2>
+        <div class="calendar-header">
+            <button style="width:auto; padding: 8px 16px;" class="btn-secondary" onclick="moveMonth(-1)">&lt;</button>
+            <span id="calendar-month-year" style="font-weight: bold; font-size: 18px; color: var(--text-main);"></span>
+            <button style="width:auto; padding: 8px 16px;" class="btn-secondary" onclick="moveMonth(1)">&gt;</button>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+        <div id="log-details" class="log-details">タップした日付のトレーニングログがここに表示されます。</div>
+        <button class="btn-secondary" onclick="changeScreen('screen-start')" style="margin-top: 20px;">メニューに戻る</button>
+    </div>
+</div>
+
+<script>
+// セット生成
+function createSets(name, workSec, restSec, sets, isRandom = false, isCountBase = false) {
+    let arr = [];
+    for (let i = 1; i <= sets; i++) {
+        if(isCountBase) {
+            arr.push({ name: `${name} [${i}/${sets}]`, type: "count", duration: 0, isRandom: isRandom });
+        } else {
+            arr.push({ name: `${name} [${i}/${sets}]`, type: "work", duration: workSec, isRandom: isRandom });
+        }
+        if (restSec > 0) {
+            arr.push({ name: `${name} (休憩) [${i}/${sets}]`, type: "rest", duration: restSec, isRandom: false });
+        }
+    }
+    return arr;
+}
+
+// 共通パーツ
+const COMMON_WARMUP = [
+    { name: "レッグスイング 前後 (15回/脚)", type: "count", duration: 0, isRandom: false },
+    { name: "レッグスイング 左右 (15回/脚)", type: "count", duration: 0, isRandom: false },
+    { name: "股関節回し (10回/方向)", type: "count", duration: 0, isRandom: false },
+    { name: "ワールドグレイテストストレッチ (5回/側)", type: "count", duration: 0, isRandom: false },
+    { name: "足首背屈モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false },
+    ...createSets("ジョグ (60秒)", 60, 30, 2),
+    ...createSets("サイドステップ (20秒)", 20, 20, 2),
+    ...createSets("クロスステップ (20秒)", 20, 20, 2),
+    ...createSets("軽チャイナステップ (20秒)", 20, 30, 3)
+];
+
+const COMMON_COOLDOWN = [
+    ...createSets("ふくらはぎストレッチ (30秒/側)", 30, 0, 2),
+    ...createSets("足底ストレッチ (30秒)", 30, 0, 2),
+    ...createSets("股関節ストレッチ (30秒/側)", 30, 0, 2),
+    ...createSets("臀筋ストレッチ (30秒/側)", 30, 0, 2),
+    { name: "胸椎回旋ストレッチ (10回/側)", type: "count", duration: 0, isRandom: false }
+];
+
+const MENUS = {
+    "DAY1": { title: "DAY1：神経系フットワーク", items: [...createSets("ラインホップ前後", 15, 30, 5), ...createSets("ラインホップ左右", 15, 30, 5), ...createSets("片脚ラインホップ", 12, 30, 3), ...createSets("ポゴジャンプ", 12, 40, 5), ...createSets("スプリット→爆発1歩 (8回)", 0, 45, 4, false, true), ...createSets("チャイナステップ→ランダム反応", 12, 35, 5, true), ...createSets("反応スプリット→爆発1歩", 12, 40, 5, true)] },
+    "DAY2": { title: "DAY2：最大筋力＋減速能力", items: [...createSets("スクワット (5回)", 0, 180, 5, false, true), ...createSets("ブルガリアンスクワット (6回/脚)", 0, 120, 4, false, true), ...createSets("デッドリフト (4回)", 0, 180, 4, false, true), ...createSets("スプリットスクワット (8回/脚)", 0, 90, 3, false, true), ...createSets("ヒップスラスト (8回)", 0, 120, 3, false, true), ...createSets("ノルディックハム (5回)", 0, 90, 3, false, true), ...createSets("コペンハーゲンプランク", 30, 30, 3), ...createSets("プランク (45秒)", 45, 30, 3)] },
+    "DAY3": { title: "DAY3：コート神経系フットワーク", items: [...createSets("前後2点ベース往復", 15, 40, 6), ...createSets("左右2点ベース往復", 15, 40, 6), ...createSets("6方向フットワーク", 15, 45, 10), ...createSets("スプリット→6方向反応移動", 15, 45, 10, true), ...createSets("ランダム方向反応フットワーク", 15, 45, 10, true), ...createSets("後方打球→前ネット切り返し", 15, 45, 6), ...createSets("高速連続シャドー", 15, 30, 10), ...createSets("前衛高速プッシュ連続", 15, 30, 8), ...createSets("フォーム維持シャドー", 40, 40, 6), { name: "軽フットワーク流し", type: "timer", duration: 300, isRandom: false }] },
+    "DAY4": { title: "DAY4：積極回復＋循環", items: [{ name: "股関節モビリティ (10回/方向)", type: "count", duration: 0, isRandom: false }, { name: "足首モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false }, { name: "胸椎モビリティ (10回/側)", type: "count", duration: 0, isRandom: false }, { name: "Zone2ジョグ or バイク", type: "timer", duration: 1050, isRandom: false }, { name: "足底リリース", type: "timer", duration: 150, isRandom: false }] },
+    "DAY5": { title: "DAY5：パワー＋横方向SSC", items: [...createSets("スクワットジャンプ (4回)", 0, 120, 5, false, true), ...createSets("ブルガリアンジャンプ (4回/脚)", 0, 90, 5, false, true), ...createSets("スケータージャンプ (6回/側)", 0, 60, 4, false, true), ...createSets("ラテラルバウンド (5回/側)", 0, 75, 4, false, true), ...createSets("片脚ホップ (5回/脚)", 0, 60, 4, false, true), ...createSets("デプスジャンプ (3回)", 0, 90, 4, false, true), ...createSets("ポゴジャンプ", 12, 40, 4)] },
+    "DAY6": { title: "DAY6：調整＋神経維持", items: [...createSets("軽チャイナステップ", 20, 30, 3), ...createSets("軽ポゴジャンプ", 10, 30, 3), ...createSets("反応スプリット→爆発1歩", 10, 40, 4, true), ...createSets("低強度フォームシャドー", 20, 30, 4), ...createSets("デッドバグ (10回)", 0, 20, 2, false, true), ...createSets("YTW (10回)", 0, 30, 2, false, true), ...createSets("チューブ外旋 (15回)", 0, 30, 2, false, true), { name: "股関節モビリティ (10回/方向)", type: "count", duration: 0, isRandom: false }, { name: "足首モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false }] },
+    "DAY7": { title: "DAY7：コート実戦統合", items: [...createSets("6方向フットワーク", 30, 45, 8), ...createSets("6方向連続フットワーク", 30, 45, 8), ...createSets("ランダム方向反応フットワーク", 20, 45, 10, true), ...createSets("後方スマッシュ→ベース戻り", 20, 40, 8), ...createSets("前衛左右プッシュ→中央戻り", 20, 30, 8), ...createSets("左右スマッシュ→ベース戻り", 30, 45, 6), ...createSets("全面ラリー継続シャドー", 45, 45, 8), ...createSets("スマッシュ→レシーブ切替", 30, 30, 8), ...createSets("疲労下6方向フットワーク維持", 40, 40, 6), ...createSets("フォーム維持シャドー", 40, 40, 4), { name: "軽フットワーク流し", type: "timer", duration: 300, isRandom: false }] },
+    "DAY3_ALT": { title: "DAY3：代替(低空間・切り返し)", items: [...createSets("前後マイクロ移動", 20, 40, 8), ...createSets("左右マイクロ移動", 20, 40, 8), ...createSets("3点反応ステップ", 15, 45, 10, true), ...createSets("スプリット→1歩初動 (10回)", 0, 40, 6, true, true), ...createSets("連続方向チェンジステップ", 20, 45, 8), ...createSets("後方想定→前方向切り返し", 15, 45, 6), ...createSets("高速シャドーフットワーク", 20, 30, 10), ...createSets("反応シャドー", 15, 30, 8, true), ...createSets("スプリット→即スイング→停止 (10回)", 0, 40, 6, false, true), ...createSets("低姿勢ホールド＋微小ステップ", 40, 40, 6), ...createSets("構えリセット (10回)", 0, 30, 3, false, true), ...createSets("スイング後制動 (12回)", 0, 45, 4, false, true), { name: "軽フットワーク流し その場", type: "timer", duration: 300, isRandom: false }] },
+    "DAY7_ALT": { title: "DAY7：代替(制限空間・試合強度)", items: [...createSets("6方向想定ステップ 小幅", 30, 45, 8), ...createSets("ランダム方向反応ステップ", 20, 45, 10, true), ...createSets("スプリット→1歩爆発初動 (12回)", 0, 40, 6, true, true), ...createSets("後方想定→前ネット切り返し", 15, 45, 8), ...createSets("左右連続切り返しステップ", 20, 40, 8), ...createSets("連続仮想ラリー移動", 30, 45, 6), ...createSets("連続シャドー 方向変化多", 40, 45, 8), ...createSets("スマッシュ→レシーブ切替", 30, 30, 8), ...createSets("疲労下初動反応", 15, 45, 6, true), ...createSets("低姿勢維持→反応移動", 40, 40, 6, true), ...createSets("制御シャドー 崩れ防止", 40, 40, 4), ...createSets("スイング後完全停止ドリル (10回)", 0, 45, 4, false, true), { name: "軽ステップ流し", type: "timer", duration: 300, isRandom: false }] }
+};
+
+// 状態管理
+let currentTimeline = [];
+let currentIdx = 0;
+let timerId = null;
+let timeLeft = 0;
+let isPaused = false;
+let selectedMenuKey = "";
+let directionTimerId = null;
+let clearArrowTimerId = null;
+const DIRECTIONS = ["⬆️", "⬇️", "⬅️", "➡️", "↖️", "↗️", "↙️", "↘️"];
+let audioCtx = null;
+
+function playTone(freq, duration) {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    } catch (e) { console.log(e); }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById("menu-select");
+    select.innerHTML = ""; 
+    for (let key in MENUS) {
+        let opt = document.createElement("option");
+        opt.value = key; 
+        opt.textContent = MENUS[key].title;
+        select.appendChild(opt);
+    }
+});
+
+function changeScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+}
+
+function startTraining() {
+    selectedMenuKey = document.getElementById("menu-select").value;
+    if (!selectedMenuKey) return;
+    playTone(440, 0.01);
+
+    currentTimeline = [...COMMON_WARMUP, ...MENUS[selectedMenuKey].items, ...COMMON_COOLDOWN];
+    currentIdx = 0; isPaused = false;
+    changeScreen('screen-timer');
+    runPhase();
+}
+
+function runPhase() {
+    clearInterval(timerId); clearTimeout(directionTimerId); clearTimeout(clearArrowTimerId);
+    document.getElementById("direction-arrow").textContent = "";
+
+    if (currentIdx >= currentTimeline.length) {
+        saveLog("completed");
+        alert("🎉 すべてのトレーニングが完了しました！");
+        changeScreen('screen-start');
+        return;
+    }
+    if (currentIdx < 0) currentIdx = 0;
+
+    const phase = currentTimeline[currentIdx];
+    document.getElementById("current-phase").textContent = phase.name;
+    document.getElementById("next-phase").textContent = (currentIdx + 1 < currentTimeline.length) ? "次: " + currentTimeline[currentIdx + 1].name : "次: 終了";
+
+    playTone(880, 0.15); setTimeout(() => playTone(880, 0.15), 180);
+
+    if ((phase.type === "count" || phase.name.includes("回")) && !phase.name.includes("休憩")) {
+        document.getElementById("time-left").style.display = "none";
+        document.getElementById("btn-done").style.display = "block";
+        document.getElementById("btn-pause").style.display = "none";
+        if (phase.isRandom) triggerRandomDirection();
+    } else {
+        document.getElementById("time-left").style.display = "block";
+        document.getElementById("btn-done").style.display = "none";
+        document.getElementById("btn-pause").style.display = "block";
+        
+        timeLeft = phase.duration;
+        updateTimerDisplay();
+
+        if (phase.isRandom) triggerRandomDirection();
+
+        timerId = setInterval(() => {
+            if (isPaused) return;
+            timeLeft--; updateTimerDisplay();
+            if (timeLeft <= 3 && timeLeft > 0) playTone(440, 0.1);
+            if (timeLeft <= 0) { currentIdx++; runPhase(); }
+        }, 1000);
+    }
+}
+
+function updateTimerDisplay() { document.getElementById("time-left").textContent = timeLeft; }
+
+function togglePause() {
+    isPaused = !isPaused;
+    document.getElementById("btn-pause").textContent = isPaused ? "再開" : "一時停止";
+    document.getElementById("btn-pause").className = isPaused ? "btn-success" : "btn-warning";
+}
+
+function pressDone() { currentIdx++; runPhase(); }
+function nextMenu() { currentIdx++; runPhase(); }
+function prevMenu() { if (currentIdx > 0) { currentIdx--; runPhase(); } }
+
+function interruptTraining() {
+    if (confirm("トレーニングを中断しますか？")) {
+        clearInterval(timerId); clearTimeout(directionTimerId); clearTimeout(clearArrowTimerId);
+        saveLog("interrupted"); changeScreen('screen-start');
+    }
+}
+
+// 修正：種目名（フットワークかステップか）に応じてランダム間隔を切り替える
+function triggerRandomDirection() {
+    if (isPaused) { directionTimerId = setTimeout(triggerRandomDirection, 1000); return; }
+    
+    const phase = currentTimeline[currentIdx];
+    const phaseName = phase ? phase.name : "";
+
+    // 矢印を表示し、電子音を再生
+    document.getElementById("direction-arrow").textContent = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+    playTone(660, 0.05);
+    
+    // 1秒後（1000ms）に矢印の表示を消去
+    clearTimeout(clearArrowTimerId);
+    clearArrowTimerId = setTimeout(() => {
+        document.getElementById("direction-arrow").textContent = "";
+    }, 1000);
+    
+    // 【新機能】種目キーワードによってランダムなインターバル（秒）を決定
+    let nextIntervalSec = 2 + Math.random() * 2; // デフォルト：2〜4秒ランダム
+
+    if (phaseName.includes("ステップ")) {
+        nextIntervalSec = 1 + Math.random() * 2; // ステップ系：1〜3秒ランダム
+    } else if (phaseName.includes("フットワーク")) {
+        nextIntervalSec = 2 + Math.random() * 2; // フットワーク系：2〜4秒ランダム
+    }
+
+    // ミリ秒に変換してタイマーをセット
+    directionTimerId = setTimeout(triggerRandomDirection, nextIntervalSec * 1000);
+}
+
+// カレンダー・ログ
+let currentCalDate = new Date();
+function getLogData() { return JSON.parse(localStorage.getItem("habit_timer_logs") || "{}"); }
+function saveLog(status) {
+    const logs = getLogData();
+    const todayStr = `${currentCalDate.getFullYear()}-${String(currentCalDate.getMonth() + 1).padStart(2, '0')}-${String(currentCalDate.getDate()).padStart(2, '0')}`;
+    logs[todayStr] = { status, title: MENUS[selectedMenuKey].title, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+    localStorage.setItem("habit_timer_logs", JSON.stringify(logs));
+}
+function moveMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
+
+function renderCalendar() {
+    const year = currentCalDate.getFullYear(), month = currentCalDate.getMonth();
+    document.getElementById("calendar-month-year").textContent = `${year}年 ${month + 1}月`;
+    const grid = document.getElementById("calendar-grid"); grid.innerHTML = "";
+
+    ["日", "月", "火", "水", "木", "金", "土"].forEach(w => {
+        const d = document.createElement("div"); d.className = "day-name"; d.textContent = w; grid.appendChild(d);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const logs = getLogData();
+
+    for (let i = 0; i < firstDay; i++) {
+        const em = document.createElement("div"); em.className = "day-cell empty"; grid.appendChild(em);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement("div"); cell.className = "day-cell"; cell.textContent = day;
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (logs[dateStr]) cell.classList.add(logs[dateStr].status);
+        
+        cell.onclick = () => {
+            const detailBox = document.getElementById("log-details");
+            if (logs[dateStr]) {
+                const state = logs[dateStr].status === "completed" ? "🟢 完了" : "🟡 中断";
+                detailBox.innerHTML = `<strong>${day}日のログ:</strong><br>${state} (${logs[dateStr].time})<br>${logs[dateStr].title}`;
+            } else {
+                detailBox.innerHTML = `<strong>${day}日のログ:</strong><br>未実施のログ、またはデータがありません。`;
+            }
+        };
+        grid.appendChild(cell);
+    }
+}
+</script>
+</body>
+</html>
