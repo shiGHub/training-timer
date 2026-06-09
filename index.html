@@ -190,7 +190,7 @@ function playTone(freq, duration) {
         const gain = audioCtx.createGain();
         
         // 🎺 音色の変更（'sine', 'square', 'triangle', 'sawtooth' から選べます）
-        osc.type = 'square'; 
+        osc.type = 'triangle'; 
         
         osc.frequency.value = freq;
         
