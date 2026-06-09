@@ -188,8 +188,15 @@ function playTone(freq, duration) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        
+        // 🎺 音色の変更（'sine', 'square', 'triangle', 'sawtooth' から選べます）
+        osc.type = 'square'; 
+        
+        osc.frequency.value = freq;
+        
+        // 🔊 音量の変更（0.0 〜 1.0 の間で調整）
+        gain.gain.setValueAtTime(0.50, audioCtx.currentTime); 
+        
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + duration);
