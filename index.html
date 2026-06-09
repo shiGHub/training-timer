@@ -195,7 +195,7 @@ function playTone(freq, duration) {
         osc.frequency.value = freq;
         
         // 🔊 音量の変更（0.0 〜 1.0 の間で調整）
-        gain.gain.setValueAtTime(0.50, audioCtx.currentTime); 
+        gain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
         
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
         osc.connect(gain); gain.connect(audioCtx.destination);
