@@ -20,7 +20,7 @@
         body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 480px; background: var(--card-bg); padding: 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         
-        h1, h2 { text-align: center; margin-bottom: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        h1, h2, h3 { text-align: center; margin-bottom: 24px; font-weight: 700; letter-spacing: -0.5px; }
         .screen { display: none; }
         .screen.active { display: block; }
         
@@ -38,8 +38,9 @@
         .btn-nav { padding: 10px; font-size: 14px; background: #334155; color: var(--text-sub); border-radius: 10px; margin: 0; }
         .btn-nav:hover { color: var(--text-main); background: #475569; }
 
-        /* セレクトボックス */
-        select { width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; border: 2px solid #334155; margin-bottom: 20px; background: #0f172a; color: var(--text-main); appearance: none; -webkit-appearance: none; cursor: pointer; }
+        /* 入力フォーム・セレクトボックス */
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 14px; font-size: 16px; border-radius: 14px; border: 2px solid #334155; margin-bottom: 15px; background: #0f172a; color: var(--text-main); }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-sub); font-weight: 600; }
 
         /* タイマー・表示エリア */
         .timer-display { text-align: center; margin: 20px 0; }
@@ -53,6 +54,20 @@
         
         .direction-box { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 70px; margin: 15px 0; background: #0f172a; border-radius: 16px; border: 2px dashed #334155; min-height: 104px; }
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* 編集用の共通カードスタイル */
+        .edit-item-card, .menu-manage-card { background: #0f172a; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid #334155; position: relative; }
+        .edit-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer; margin-top: 4px; }
+        .checkbox-label input { width: 16px; height: 16px; }
+        
+        /* アクションボタンエリア */
+        .edit-card-actions { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; margin-top: 12px; }
+        .btn-action-small { padding: 8px; margin: 0; font-size: 12px; border-radius: 8px; }
+
+        /* メニュー並び替え用カード固有スタイル */
+        .menu-manage-card { display: flex; flex-direction: column; justify-content: space-between; }
+        .menu-title-text { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--text-main); word-break: break-all; }
 
         /* DotHabit風カレンダー */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -73,16 +88,47 @@
 <body>
 
 <div class="container">
-    <!-- スタート画面 -->
     <div id="screen-start" class="screen active">
         <h1>Training Timer</h1>
         <div style="margin-bottom: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">メニューを選んでスタート</div>
         <select id="menu-select"><option value="">読み込み中...</option></select>
         <button class="btn-primary" onclick="startTraining()">トレーニング開始</button>
+        <button class="btn-secondary" onclick="openEditScreen1()">⚙️ メニューの編集・作成</button>
         <button class="btn-secondary" onclick="changeScreen('screen-record'); renderCalendar();">Record</button>
     </div>
 
-    <!-- トレーニング実施画面 -->
+    <div id="screen-edit-1" class="screen">
+        <h2>メニューの編集・並び替え</h2>
+        
+        <div style="margin-bottom: 20px; background: #0f172a; padding: 16px; border-radius: 14px; border: 1px solid #334155;">
+            <label for="new-menu-title" style="color: var(--primary);">✨ 新しいメニューを作成</label>
+            <input type="text" id="new-menu-title" placeholder="例：DAY8：瞬発ステップ特化" style="margin-bottom: 10px;">
+            <button class="btn-success" onclick="createNewMenu()" style="margin: 0; padding: 12px;">新規作成して中身を編集</button>
+        </div>
+
+        <label>既存メニューの一覧・並び替え</label>
+        <div style="max-height: 320px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="menu-list-container">
+            </div>
+
+        <button class="btn-secondary" onclick="changeScreen('screen-start')">戻る</button>
+    </div>
+
+    <div id="screen-edit-2" class="screen">
+        <h2>メニュー中身の編集</h2>
+        <div style="margin-bottom: 15px;">
+            <label>メニュータイトル</label>
+            <input type="text" id="edit-current-menu-title">
+        </div>
+        
+        <div style="max-height: 380px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="edit-items-container">
+            </div>
+
+        <button class="btn-success" onclick="addNewItemRow()">➕ 種目を追加</button>
+        <button class="btn-primary" onclick="saveEditedMenu()">💾 変更を保存</button>
+        <button id="btn-delete-menu" class="btn-danger" onclick="deleteMenu()">🗑️ このメニューを削除</button>
+        <button class="btn-secondary" onclick="changeScreen('screen-edit-1')">キャンセル</button>
+    </div>
+
     <div id="screen-timer" class="screen">
         <div class="nav-grid">
             <button class="btn-nav" onclick="prevMenu()">◀ 前のメニュー</button>
@@ -106,7 +152,6 @@
         </div>
     </div>
 
-    <!-- 記録画面 -->
     <div id="screen-record" class="screen">
         <h2>Training Record</h2>
         <div class="calendar-header">
@@ -121,7 +166,23 @@
 </div>
 
 <script>
-// セット生成
+function parseSetsToItems(name, workSec, restSec, sets, isRandom, isCountBase) {
+    return { name, w: workSec, r: restSec, s: sets, rand: isRandom, c: isCountBase };
+}
+
+// 初期デフォルトメニュー（localStorageが空のときのみ利用され、以後はユーザーの並び順オブジェクトが尊重されます）
+const DEFAULT_MENUS = {
+    "DAY1": { title: "DAY1：神経系フットワーク", items: [parseSetsToItems("ラインホップ前後", 15, 30, 5, false, false), parseSetsToItems("ラインホップ左右", 15, 30, 5, false, false), parseSetsToItems("片脚ラインホップ", 12, 30, 3, false, false), parseSetsToItems("ポゴジャンプ", 12, 40, 5, false, false), parseSetsToItems("スプリット→爆発1歩 (8回)", 0, 45, 4, false, true), parseSetsToItems("チャイナステップ→ランダム反応", 12, 35, 5, true, false), parseSetsToItems("反応スプリット→爆発1歩", 12, 40, 5, true, false)] },
+    "DAY2": { title: "DAY2：最大筋力＋減速能力", items: [parseSetsToItems("スクワット (5回)", 0, 180, 5, false, true), parseSetsToItems("ブルガリアンスクワット (6回/脚)", 0, 120, 4, false, true), parseSetsToItems("デッドリフト (4回)", 0, 180, 4, false, true), parseSetsToItems("スプリットスクワット (8回/脚)", 0, 90, 3, false, true), parseSetsToItems("ヒップスラスト (8回)", 0, 120, 3, false, true), parseSetsToItems("ノルディックハム (5回)", 0, 90, 3, false, true), parseSetsToItems("コペンハーゲンプランク", 30, 30, 3, false, false), parseSetsToItems("プランク (45秒)", 45, 30, 3, false, false)] },
+    "DAY3": { title: "DAY3：コート神経系フットワーク", items: [parseSetsToItems("前後2点ベース往復", 15, 40, 6, false, false), parseSetsToItems("左右2点ベース往復", 15, 40, 6, false, false), parseSetsToItems("6方向フットワーク", 15, 45, 10, false, false), parseSetsToItems("スプリット→6方向反応移動", 15, 45, 10, true, false), parseSetsToItems("ランダム方向反応フットワーク", 15, 45, 10, true, false), parseSetsToItems("後方打球→前ネット切り返し", 15, 45, 6, false, false), parseSetsToItems("高速連続シャドー", 15, 30, 10, false, false), parseSetsToItems("前衛高速プッシュ連続", 15, 30, 8, false, false), parseSetsToItems("フォーム維持シャドー", 40, 40, 6, false, false), parseSetsToItems("軽フットワーク流し", 300, 0, 1, false, false)] },
+    "DAY4": { title: "DAY4：積極回復＋循環", items: [parseSetsToItems("股関節モビリティ (10回/方向)", 0, 0, 1, false, true), parseSetsToItems("足首モビリティ (15回/脚)", 0, 0, 1, false, true), parseSetsToItems("胸椎モビリティ (10回/側)", 0, 0, 1, false, true), parseSetsToItems("Zone2ジョグ or バイク", 1050, 0, 1, false, false), parseSetsToItems("足底リリース", 150, 0, 1, false, false)] },
+    "DAY5": { title: "DAY5：パワー＋横方向SSC", items: [parseSetsToItems("スクワットジャンプ (4回)", 0, 120, 5, false, true), parseSetsToItems("ブルガリアンジャンプ (4回/脚)", 0, 90, 5, false, true), parseSetsToItems("スケータージャンプ (6回/側)", 0, 60, 4, false, true), parseSetsToItems("ラテラルバウンド (5回/側)", 0, 75, 4, false, true), parseSetsToItems("片脚ホップ (5回/脚)", 0, 60, 4, false, true), parseSetsToItems("デプスジャンプ (3回)", 0, 90, 4, false, true), parseSetsToItems("ポゴジャンプ", 12, 40, 4, false, false)] },
+    "DAY6": { title: "DAY6：調整＋神経維持", items: [parseSetsToItems("軽チャイナステップ", 20, 30, 3, false, false), parseSetsToItems("軽ポゴジャンプ", 10, 30, 3, false, false), parseSetsToItems("反応スプリット→爆発1歩", 10, 40, 4, true, false), parseSetsToItems("低強度フォームシャドー", 20, 30, 4, false, false), parseSetsToItems("デッドバグ (10回)", 0, 20, 2, false, true), parseSetsToItems("YTW (10回)", 0, 30, 2, false, true), parseSetsToItems("チューブ外旋 (15回)", 0, 30, 2, false, true), parseSetsToItems("股関節モビリティ (10回/方向)", 0, 0, 1, false, true), parseSetsToItems("足首モビリティ (15回/脚)", 0, 0, 1, false, true)] },
+    "DAY7": { title: "DAY7：コート実戦統合", items: [parseSetsToItems("6方向フットワーク", 30, 45, 8, false, false), parseSetsToItems("6方向連続フットワーク", 30, 45, 8, false, false), parseSetsToItems("ランダム方向反応フットワーク", 20, 45, 10, true, false), parseSetsToItems("後方スマッシュ→ベース戻り", 20, 40, 8, false, false), parseSetsToItems("前衛左右プッシュ→中央戻り", 20, 30, 8, false, false), parseSetsToItems("左右スマッシュ→ベース戻り", 30, 45, 6, false, false), parseSetsToItems("全面ラリー継続シャドー", 45, 45, 8, false, false), parseSetsToItems("スマッシュ→レシーブ切替", 30, 30, 8, false, false), parseSetsToItems("疲労下6方向フットワーク維持", 40, 40, 6, false, false), parseSetsToItems("フォーム維持シャドー", 40, 40, 4, false, false), parseSetsToItems("軽フットワーク流し", 300, 0, 1, false, false)] },
+    "DAY3_ALT": { title: "DAY3：代替(低空間・切り返し)", items: [parseSetsToItems("前後マイクロ移動", 20, 40, 8, false, false), parseSetsToItems("左右マイクロ移動", 20, 40, 8, false, false), parseSetsToItems("3点反応ステップ", 15, 45, 10, true, false), parseSetsToItems("スプリット→1歩初動 (10回)", 0, 40, 6, true, true), parseSetsToItems("連続方向チェンジステップ", 20, 45, 8, false, false), parseSetsToItems("後方想定→前方向切り返し", 15, 45, 6, false, false), parseSetsToItems("高速シャドーフットワーク", 20, 30, 10, false, false), parseSetsToItems("反応シャドー", 15, 30, 8, true, false), parseSetsToItems("スプリット→即スイング→停止 (10回)", 0, 40, 6, false, true), parseSetsToItems("低姿勢ホールド＋微小ステップ", 40, 40, 6, false, false), parseSetsToItems("構えリセット (10回)", 0, 30, 3, false, true), parseSetsToItems("スイング後制動 (12回)", 0, 45, 4, false, true), parseSetsToItems("軽フットワーク流し その場", 300, 0, 1, false, false)] },
+    "DAY7_ALT": { title: "DAY7：代替(制限空間・試合強度)", items: [parseSetsToItems("6方向想定ステップ 小幅", 30, 45, 8, false, false), parseSetsToItems("ランダム方向反応ステップ", 20, 45, 10, true, false), parseSetsToItems("スプリット→1歩爆発初動 (12回)", 0, 40, 6, true, true), parseSetsToItems("後方想定→前ネット切り返し", 15, 45, 8, false, false), parseSetsToItems("左右連続切り返しステップ", 20, 40, 8, false, false), parseSetsToItems("連続仮想ラリー移動", 30, 45, 6, false, false), parseSetsToItems("連続シャドー 方向変化多", 40, 45, 8, false, false), parseSetsToItems("スマッシュ→レシーブ切替", 30, 30, 8, false, false), parseSetsToItems("疲労下初動反応", 15, 45, 6, true, false), parseSetsToItems("低姿勢維持→反応移動", 40, 40, 6, true, false), parseSetsToItems("制御シャドー 崩れ防止", 40, 40, 4, false, false), parseSetsToItems("スイング後完全停止ドリル (10回)", 0, 45, 4, false, true), parseSetsToItems("軽ステップ流し", 300, 0, 1, false, false)] }
+};
+
 function createSets(name, workSec, restSec, sets, isRandom = false, isCountBase = false) {
     let arr = [];
     for (let i = 1; i <= sets; i++) {
@@ -137,7 +198,6 @@ function createSets(name, workSec, restSec, sets, isRandom = false, isCountBase 
     return arr;
 }
 
-// 共通パーツ
 const COMMON_WARMUP = [
     { name: "レッグスイング 前後 (15回/脚)", type: "count", duration: 0, isRandom: false },
     { name: "レッグスイング 左右 (15回/脚)", type: "count", duration: 0, isRandom: false },
@@ -158,19 +218,7 @@ const COMMON_COOLDOWN = [
     { name: "胸椎回旋ストレッチ (10回/側)", type: "count", duration: 0, isRandom: false }
 ];
 
-const MENUS = {
-    "DAY1": { title: "DAY1：神経系フットワーク", items: [...createSets("ラインホップ前後", 15, 30, 5), ...createSets("ラインホップ左右", 15, 30, 5), ...createSets("片脚ラインホップ", 12, 30, 3), ...createSets("ポゴジャンプ", 12, 40, 5), ...createSets("スプリット→爆発1歩 (8回)", 0, 45, 4, false, true), ...createSets("チャイナステップ→ランダム反応", 12, 35, 5, true), ...createSets("反応スプリット→爆発1歩", 12, 40, 5, true)] },
-    "DAY2": { title: "DAY2：最大筋力＋減速能力", items: [...createSets("スクワット (5回)", 0, 180, 5, false, true), ...createSets("ブルガリアンスクワット (6回/脚)", 0, 120, 4, false, true), ...createSets("デッドリフト (4回)", 0, 180, 4, false, true), ...createSets("スプリットスクワット (8回/脚)", 0, 90, 3, false, true), ...createSets("ヒップスラスト (8回)", 0, 120, 3, false, true), ...createSets("ノルディックハム (5回)", 0, 90, 3, false, true), ...createSets("コペンハーゲンプランク", 30, 30, 3), ...createSets("プランク (45秒)", 45, 30, 3)] },
-    "DAY3": { title: "DAY3：コート神経系フットワーク", items: [...createSets("前後2点ベース往復", 15, 40, 6), ...createSets("左右2点ベース往復", 15, 40, 6), ...createSets("6方向フットワーク", 15, 45, 10), ...createSets("スプリット→6方向反応移動", 15, 45, 10, true), ...createSets("ランダム方向反応フットワーク", 15, 45, 10, true), ...createSets("後方打球→前ネット切り返し", 15, 45, 6), ...createSets("高速連続シャドー", 15, 30, 10), ...createSets("前衛高速プッシュ連続", 15, 30, 8), ...createSets("フォーム維持シャドー", 40, 40, 6), { name: "軽フットワーク流し", type: "timer", duration: 300, isRandom: false }] },
-    "DAY4": { title: "DAY4：積極回復＋循環", items: [{ name: "股関節モビリティ (10回/方向)", type: "count", duration: 0, isRandom: false }, { name: "足首モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false }, { name: "胸椎モビリティ (10回/側)", type: "count", duration: 0, isRandom: false }, { name: "Zone2ジョグ or バイク", type: "timer", duration: 1050, isRandom: false }, { name: "足底リリース", type: "timer", duration: 150, isRandom: false }] },
-    "DAY5": { title: "DAY5：パワー＋横方向SSC", items: [...createSets("スクワットジャンプ (4回)", 0, 120, 5, false, true), ...createSets("ブルガリアンジャンプ (4回/脚)", 0, 90, 5, false, true), ...createSets("スケータージャンプ (6回/側)", 0, 60, 4, false, true), ...createSets("ラテラルバウンド (5回/側)", 0, 75, 4, false, true), ...createSets("片脚ホップ (5回/脚)", 0, 60, 4, false, true), ...createSets("デプスジャンプ (3回)", 0, 90, 4, false, true), ...createSets("ポゴジャンプ", 12, 40, 4)] },
-    "DAY6": { title: "DAY6：調整＋神経維持", items: [...createSets("軽チャイナステップ", 20, 30, 3), ...createSets("軽ポゴジャンプ", 10, 30, 3), ...createSets("反応スプリット→爆発1歩", 10, 40, 4, true), ...createSets("低強度フォームシャドー", 20, 30, 4), ...createSets("デッドバグ (10回)", 0, 20, 2, false, true), ...createSets("YTW (10回)", 0, 30, 2, false, true), ...createSets("チューブ外旋 (15回)", 0, 30, 2, false, true), { name: "股関節モビリティ (10回/方向)", type: "count", duration: 0, isRandom: false }, { name: "足首モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false }] },
-    "DAY7": { title: "DAY7：コート実戦統合", items: [...createSets("6方向フットワーク", 30, 45, 8), ...createSets("6方向連続フットワーク", 30, 45, 8), ...createSets("ランダム方向反応フットワーク", 20, 45, 10, true), ...createSets("後方スマッシュ→ベース戻り", 20, 40, 8), ...createSets("前衛左右プッシュ→中央戻り", 20, 30, 8), ...createSets("左右スマッシュ→ベース戻り", 30, 45, 6), ...createSets("全面ラリー継続シャドー", 45, 45, 8), ...createSets("スマッシュ→レシーブ切替", 30, 30, 8), ...createSets("疲労下6方向フットワーク維持", 40, 40, 6), ...createSets("フォーム維持シャドー", 40, 40, 4), { name: "軽フットワーク流し", type: "timer", duration: 300, isRandom: false }] },
-    "DAY3_ALT": { title: "DAY3：代替(低空間・切り返し)", items: [...createSets("前後マイクロ移動", 20, 40, 8), ...createSets("左右マイクロ移動", 20, 40, 8), ...createSets("3点反応ステップ", 15, 45, 10, true), ...createSets("スプリット→1歩初動 (10回)", 0, 40, 6, true, true), ...createSets("連続方向チェンジステップ", 20, 45, 8), ...createSets("後方想定→前方向切り返し", 15, 45, 6), ...createSets("高速シャドーフットワーク", 20, 30, 10), ...createSets("反応シャドー", 15, 30, 8, true), ...createSets("スプリット→即スイング→停止 (10回)", 0, 40, 6, false, true), ...createSets("低姿勢ホールド＋微小ステップ", 40, 40, 6), ...createSets("構えリセット (10回)", 0, 30, 3, false, true), ...createSets("スイング後制動 (12回)", 0, 45, 4, false, true), { name: "軽フットワーク流し その場", type: "timer", duration: 300, isRandom: false }] },
-    "DAY7_ALT": { title: "DAY7：代替(制限空間・試合強度)", items: [...createSets("6方向想定ステップ 小幅", 30, 45, 8), ...createSets("ランダム方向反応ステップ", 20, 45, 10, true), ...createSets("スプリット→1歩爆発初動 (12回)", 0, 40, 6, true, true), ...createSets("後方想定→前ネット切り返し", 15, 45, 8), ...createSets("左右連続切り返しステップ", 20, 40, 8), ...createSets("連続仮想ラリー移動", 30, 45, 6), ...createSets("連続シャドー 方向変化多", 40, 45, 8), ...createSets("スマッシュ→レシーブ切替", 30, 30, 8), ...createSets("疲労下初動反応", 15, 45, 6, true), ...createSets("低姿勢維持→反応移動", 40, 40, 6, true), ...createSets("制御シャドー 崩れ防止", 40, 40, 4), ...createSets("スイング後完全停止ドリル (10回)", 0, 45, 4, false, true), { name: "軽ステップ流し", type: "timer", duration: 300, isRandom: false }] }
-};
-
-// 状態管理
+let MENUS = {};
 let currentTimeline = [];
 let currentIdx = 0;
 let timerId = null;
@@ -182,6 +230,55 @@ let clearArrowTimerId = null;
 const DIRECTIONS = ["⬆️", "⬇️", "⬅️", "➡️", "↖️", "↗️", "↙️", "↘️"];
 let audioCtx = null;
 
+window.addEventListener('DOMContentLoaded', () => {
+    loadMenus();
+    refreshMainScreenSelect();
+});
+
+// メニューデータの読み込み（JSオブジェクトの順番を壊さない形式）
+function loadMenus() {
+    const saved = localStorage.getItem("custom_habit_menus");
+    if (saved) {
+        MENUS = JSON.parse(saved);
+    } else {
+        MENUS = JSON.parse(JSON.stringify(DEFAULT_MENUS));
+        saveMenusToStorage();
+    }
+}
+
+function saveMenusToStorage() {
+    localStorage.setItem("custom_habit_menus", JSON.stringify(MENUS));
+}
+
+// スタート画面のセレクトボックスの同期
+function refreshMainScreenSelect() {
+    const mainSelect = document.getElementById("menu-select");
+    mainSelect.innerHTML = "";
+    
+    for (let key in MENUS) {
+        let opt = document.createElement("option");
+        opt.value = key; opt.textContent = MENUS[key].title;
+        mainSelect.appendChild(opt);
+    }
+}
+
+function buildMainTimelineItems(itemsArray) {
+    let timeline = [];
+    itemsArray.forEach(item => {
+        for (let i = 1; i <= item.s; i++) {
+            if (item.c) {
+                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "count", duration: 0, isRandom: !!item.rand });
+            } else {
+                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "work", duration: item.w, isRandom: !!item.rand });
+            }
+            if (item.r > 0) {
+                timeline.push({ name: `${item.name} (休憩) [${i}/${item.s}]`, type: "rest", duration: item.r, isRandom: false });
+            }
+        }
+    });
+    return timeline;
+}
+
 function playTone(freq, duration) {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -189,42 +286,245 @@ function playTone(freq, duration) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         
-        // 🎺 音色の変更（'sine', 'square', 'triangle', 'sawtooth' から選べます）
-        osc.type = 'sawtooth'; 
-        
+        osc.type = 'square'; 
         osc.frequency.value = freq;
-        
-        // 🔊 音量の変更（0.0 〜 1.0 の間で調整）
         gain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
-        
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + duration);
     } catch (e) { console.log(e); }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById("menu-select");
-    select.innerHTML = ""; 
-    for (let key in MENUS) {
-        let opt = document.createElement("option");
-        opt.value = key; 
-        opt.textContent = MENUS[key].title;
-        select.appendChild(opt);
-    }
-});
-
 function changeScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
 }
 
+
+// --- メニュー編集画面１ (メニュー自体の並び替え・管理) ---
+
+function openEditScreen1() {
+    renderMenuManageCards();
+    changeScreen('screen-edit-1');
+}
+
+// 新規作成ボタンが押されたとき
+function createNewMenu() {
+    const titleInput = document.getElementById("new-menu-title").value.trim();
+    if (!titleInput) { alert("新規メニュー名を入力してください。"); return; }
+    
+    const newKey = "CUSTOM_" + Date.now();
+    // 新規空メニューを追加
+    MENUS[newKey] = { title: titleInput, items: [{ name: "最初の種目", w: 15, r: 30, s: 3, rand: false, c: false }] };
+    saveMenusToStorage();
+    document.getElementById("new-menu-title").value = ""; // クリア
+
+    // そのまま画面2へ遷移
+    openEditScreen2(newKey);
+}
+
+// メニュー自体のカード群をレンダリングする
+function renderMenuManageCards() {
+    const container = document.getElementById("menu-list-container");
+    container.innerHTML = "";
+
+    const keys = Object.keys(MENUS);
+
+    keys.forEach((key, index) => {
+        const card = document.createElement("div");
+        card.className = "menu-manage-card";
+        card.setAttribute("data-key", key);
+        card.innerHTML = `
+            <div class="menu-title-text">${MENUS[key].title}</div>
+            <div class="edit-card-actions">
+                <button class="btn-secondary btn-action-small btn-menu-up" onclick="moveMenuKeyUp('${key}')">🔼 上へ</button>
+                <button class="btn-secondary btn-action-small btn-menu-down" onclick="moveMenuKeyDown('${key}')">🔽 下へ</button>
+                <button class="btn-primary btn-action-small" onclick="openEditScreen2('${key}')">⚙️ 編集</button>
+            </div>
+        `;
+        container.appendChild(card);
+        
+        // 最初と最後のボタンの表示調整
+        if (index === 0) card.querySelector(".btn-menu-up").style.visibility = "hidden";
+        if (index === keys.length - 1) card.querySelector(".btn-menu-down").style.visibility = "hidden";
+    });
+}
+
+// メニューのキー順を上に入れ替える
+function moveMenuKeyUp(key) {
+    const keys = Object.keys(MENUS);
+    const idx = keys.indexOf(key);
+    if (idx > 0) {
+        // キーの入れ替え
+        const temp = keys[idx];
+        keys[idx] = keys[idx - 1];
+        keys[idx - 1] = temp;
+        reorderMenusObject(keys);
+    }
+}
+
+// メニューのキー順を下に入れ替える
+function moveMenuKeyDown(key) {
+    const keys = Object.keys(MENUS);
+    const idx = keys.indexOf(key);
+    if (idx !== -1 && idx < keys.length - 1) {
+        // キーの入れ替え
+        const temp = keys[idx];
+        keys[idx] = keys[idx + 1];
+        keys[idx + 1] = temp;
+        reorderMenusObject(keys);
+    }
+}
+
+// 並び替えたキー配列を元にMENUSオブジェクトを再構成して保存
+function reorderMenusObject(newKeyArray) {
+    let newMenus = {};
+    newKeyArray.forEach(k => {
+        newMenus[k] = MENUS[k];
+    });
+    MENUS = newMenus;
+    saveMenusToStorage();
+    refreshMainScreenSelect();
+    renderMenuManageCards();
+}
+
+
+// --- メニュー編集画面２ (中身の個別カスタマイズ) ---
+let temporaryEditKey = "";
+
+function openEditScreen2(key) {
+    temporaryEditKey = key;
+    const container = document.getElementById("edit-items-container");
+    container.innerHTML = "";
+
+    document.getElementById("edit-current-menu-title").value = MENUS[key].title;
+    document.getElementById("btn-delete-menu").style.display = "block";
+    
+    MENUS[key].items.forEach(item => {
+        addNewItemRow(item);
+    });
+
+    changeScreen('screen-edit-2');
+    updateSortButtons();
+}
+
+function addNewItemRow(item = {name:"", w:15, r:30, s:3, rand:false, c:false}) {
+    const container = document.getElementById("edit-items-container");
+    const card = document.createElement("div");
+    card.className = "edit-item-card";
+    card.innerHTML = `
+        <label>種目名</label>
+        <input type="text" class="item-name" value="${item.name}" placeholder="例：ラインホップ前後">
+        <div class="edit-item-grid">
+            <div>
+                <label>運動(秒)</label>
+                <input type="number" class="item-w" value="${item.w}" min="0">
+            </div>
+            <div>
+                <label>休憩(秒)</label>
+                <input type="number" class="item-r" value="${item.r}" min="0">
+            </div>
+        </div>
+        <div class="edit-item-grid">
+            <div>
+                <label>セット数</label>
+                <input type="number" class="item-s" value="${item.s}" min="1">
+            </div>
+            <div style="display:flex; flex-direction:column; justify-content:center; padding-left:10px;">
+                <label class="checkbox-label"><input type="checkbox" class="item-rand" ${item.rand ? 'checked' : ''}> 矢印表示</label>
+                <label class="checkbox-label"><input type="checkbox" class="item-c" ${item.c ? 'checked' : ''}> DONEボタン化</label>
+            </div>
+        </div>
+        <div class="edit-card-actions">
+            <button class="btn-secondary btn-action-small btn-move-up" onclick="moveCardUp(this)">🔼 上へ</button>
+            <button class="btn-secondary btn-action-small btn-move-down" onclick="moveCardDown(this)">🔽 下へ</button>
+            <button class="btn-danger btn-action-small" onclick="this.parentElement.parentElement.remove(); updateSortButtons();">❌ この種目を削除</button>
+        </div>
+    `;
+    container.appendChild(card);
+    updateSortButtons();
+    card.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function moveCardUp(button) {
+    const card = button.parentElement.parentElement;
+    const previousCard = card.previousElementSibling;
+    if (previousCard) {
+        card.parentElement.insertBefore(card, previousCard);
+        updateSortButtons();
+    }
+}
+
+function moveCardDown(button) {
+    const card = button.parentElement.parentElement;
+    const nextCard = card.nextElementSibling;
+    if (nextCard) {
+        card.parentElement.insertBefore(nextCard, card);
+        updateSortButtons();
+    }
+}
+
+function updateSortButtons() {
+    const cards = document.querySelectorAll(".edit-item-card");
+    cards.forEach((card, index) => {
+        const upBtn = card.querySelector(".btn-move-up");
+        const downBtn = card.querySelector(".btn-move-down");
+        if (index === 0) { upBtn.style.visibility = "hidden"; } else { upBtn.style.visibility = "visible"; }
+        if (index === cards.length - 1) { downBtn.style.visibility = "hidden"; } else { downBtn.style.visibility = "visible"; }
+    });
+}
+
+function saveEditedMenu() {
+    const title = document.getElementById("edit-current-menu-title").value.trim();
+    if (!title) { alert("メニュータイトルを入力してください。"); return; }
+
+    const cards = document.querySelectorAll(".edit-item-card");
+    let items = [];
+
+    for (let card of cards) {
+        const name = card.querySelector(".item-name").value.trim();
+        const w = parseInt(card.querySelector(".item-w").value) || 0;
+        const r = parseInt(card.querySelector(".item-r").value) || 0;
+        const s = parseInt(card.querySelector(".item-s").value) || 1;
+        const rand = card.querySelector(".item-rand").checked;
+        const c = card.querySelector(".item-c").checked;
+
+        if (!name) { alert("種目名が空のカードがあります。入力するか削除してください。"); return; }
+        items.push({ name, w, r, s, rand, c });
+    }
+
+    if (items.length === 0) { alert("最低でも１つの種目をリストに追加してください。"); return; }
+
+    MENUS[temporaryEditKey] = { title, items };
+    saveMenusToStorage();
+    
+    alert("💾 メニューの中身を変更保存しました！");
+    refreshMainScreenSelect();
+    openEditScreen1(); // 一覧画面へ戻る
+}
+
+function deleteMenu() {
+    if (confirm("このトレーニングメニューを完全に削除しますか？")) {
+        delete MENUS[temporaryEditKey];
+        saveMenusToStorage();
+        refreshMainScreenSelect();
+        openEditScreen1(); // 一覧画面へ戻る
+    }
+}
+
+
+// --- タイマー処理 ---
 function startTraining() {
     selectedMenuKey = document.getElementById("menu-select").value;
     if (!selectedMenuKey) return;
+    
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     playTone(440, 0.01);
 
-    currentTimeline = [...COMMON_WARMUP, ...MENUS[selectedMenuKey].items, ...COMMON_COOLDOWN];
+    const parsedMainItems = buildMainTimelineItems(MENUS[selectedMenuKey].items);
+    currentTimeline = [...COMMON_WARMUP, ...parsedMainItems, ...COMMON_COOLDOWN];
+    
     currentIdx = 0; isPaused = false;
     changeScreen('screen-timer');
     runPhase();
@@ -291,33 +591,28 @@ function interruptTraining() {
     }
 }
 
-// 修正：種目名（フットワークかステップか）に応じてランダム間隔を切り替える
 function triggerRandomDirection() {
     if (isPaused) { directionTimerId = setTimeout(triggerRandomDirection, 1000); return; }
     
     const phase = currentTimeline[currentIdx];
     const phaseName = phase ? phase.name : "";
 
-    // 矢印を表示し、電子音を再生
     document.getElementById("direction-arrow").textContent = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
     playTone(660, 0.05);
     
-    // 1秒後（1000ms）に矢印の表示を消去
     clearTimeout(clearArrowTimerId);
     clearArrowTimerId = setTimeout(() => {
         document.getElementById("direction-arrow").textContent = "";
     }, 1000);
     
-    // 【新機能】種目キーワードによってランダムなインターバル（秒）を決定
-    let nextIntervalSec = 2 + Math.random() * 2; // デフォルト：2〜4秒ランダム
+    let nextIntervalSec = 2 + Math.random() * 2; 
 
     if (phaseName.includes("ステップ")) {
-        nextIntervalSec = 1 + Math.random() * 2; // ステップ系：1〜3秒ランダム
+        nextIntervalSec = 1 + Math.random() * 2; 
     } else if (phaseName.includes("フットワーク")) {
-        nextIntervalSec = 2 + Math.random() * 2; // フットワーク系：2〜4秒ランダム
+        nextIntervalSec = 2 + Math.random() * 2; 
     }
 
-    // ミリ秒に変換してタイマーをセット
     directionTimerId = setTimeout(triggerRandomDirection, nextIntervalSec * 1000);
 }
 
@@ -327,7 +622,7 @@ function getLogData() { return JSON.parse(localStorage.getItem("habit_timer_logs
 function saveLog(status) {
     const logs = getLogData();
     const todayStr = `${currentCalDate.getFullYear()}-${String(currentCalDate.getMonth() + 1).padStart(2, '0')}-${String(currentCalDate.getDate()).padStart(2, '0')}`;
-    logs[todayStr] = { status, title: MENUS[selectedMenuKey].title, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+    logs[todayStr] = { status, title: MENUS[selectedMenuKey] ? MENUS[selectedMenuKey].title : "カスタムトレーニング", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
     localStorage.setItem("habit_timer_logs", JSON.stringify(logs));
 }
 function moveMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
