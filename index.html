@@ -317,7 +317,7 @@ function playTone(freq, duration) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         
-        osc.type = 'triangle'; 
+        osc.type = 'sawtooth'; 
         osc.frequency.value = freq;
         gain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
