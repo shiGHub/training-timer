@@ -373,7 +373,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("疲労下初動反応（動作遅延状態から開始）", 15, 45, 6, "none"), 
             parseSetsToItems("低姿勢維持→ランダム方向反応ステップ", 40, 40, 6, "step"), 
             parseSetsToItems("制御シャドー（崩れ防止）", 40, 40, 4, "none"), 
-            parseSetsToItems("スイング後完全停止ドリル：10回", 0, 45, 4, "none", true), 
+            parseSetsToItems("スイング后完全停止ドリル：10回", 0, 45, 4, "none", true), 
             parseSetsToItems("軽ステップ流し（リズム維持）", 300, 0, 1, "none", false)
         ] 
     }
@@ -456,15 +456,12 @@ function loadArrowSettings() {
     }
 }
 
-// メニューデータの読み込み（ベースメニューは常に最新化しつつ、CUSTOM_メニューのみ保持）
+// 【修正点①】メニューデータの読み込み仕様をクリーン化（ユーザー編集を最優先）
 function loadMenus() {
     const saved = localStorage.getItem("custom_habit_menus");
-    
     if (saved) {
-        // 過去に保存されたデータがある場合は、既存メニューの編集分も含めてすべてそのまま読み込む
         MENUS = JSON.parse(saved);
     } else {
-        // 初めての起動、またはリセットボタンを押した後はデフォルトを読み込む
         MENUS = JSON.parse(JSON.stringify(DEFAULT_MENUS));
         saveMenusToStorage();
     }
@@ -484,22 +481,19 @@ function refreshMainScreenSelect() {
     }
 }
 
-// 【新機能】すべての設定をデフォルトに戻す（Yes/No確認ダイアログ付き）
+// すべての設定をデフォルトに戻す
 function resetAllToDefault() {
-    // 1度目の確認
     const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定を工場出荷時のデフォルト状態に戻しますか？");
-    if (!firstCheck) return; // Noなら終了
+    if (!firstCheck) return;
 
-    // 2度目の最終確認
     const secondCheck = confirm("本当に戻してもよろしいですか？（この操作は取り消せません）");
-    if (!secondCheck) return; // Noなら終了
+    if (!secondCheck) return;
 
-    // LocalStorageのデータをクリア
     localStorage.removeItem("custom_habit_menus");
     localStorage.removeItem("global_arrow_speeds");
+    localStorage.removeItem("habit_timer_logs"); // カレンダーログもクリアしたい場合は残す
     
     alert("🔄 すべての設定をデフォルト状態にリセットしました！");
-    // ページを再読み込みして最新コードの状態を適用
     location.reload();
 }
 
@@ -567,7 +561,6 @@ function openArrowSettingsScreen() {
     const container = document.getElementById("arrow-settings-container");
     container.innerHTML = "";
 
-    // 1. フットワークセクション
     let fwHtml = `<div class="settings-section"><div class="settings-title">🏃‍♂️ フットワーク表示間隔</div>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] : 2.0;
@@ -588,7 +581,6 @@ function openArrowSettingsScreen() {
         </div>
     </div>`;
 
-    // 2. ステップセクション
     let stHtml = `<div class="settings-section"><div class="settings-title">👟 ステップ表示間隔</div>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] : 1.0;
@@ -609,7 +601,6 @@ function openArrowSettingsScreen() {
         </div>
     </div>`;
 
-    // 3. ランダムセクション
     let rdHtml = `
     <div class="settings-section">
         <div class="settings-title">🎲 ランダム表示レンジ</div>
@@ -730,6 +721,7 @@ function openEditScreen2(key) {
     updateSortButtons();
 }
 
+// 【修正点③】新規種目を追加した際も自動判別が最初から噛み合うように初期設定
 function addNewItemRow(item = null) {
     if (!item) {
         item = { name: "", w: 15, r: 30, s: 3, arrowType: "none", c: false, fixedDelay: 0, enabledDirs: [45, 90, 135, 225, 270, 315] };
@@ -1034,12 +1026,20 @@ function triggerNextArrowInterval(isFirstTrigger = false) {
 // カレンダー・ログ
 let currentCalDate = new Date();
 function getLogData() { return JSON.parse(localStorage.getItem("habit_timer_logs") || "{}"); }
+
+// 【修正点②】ログ保存時の日付取得を「表示中のカレンダーの月」ではなく「本物の今日」に固定
 function saveLog(status) {
     const logs = getLogData();
-    const todayStr = `${currentCalDate.getFullYear()}-${String(currentCalDate.getMonth() + 1).padStart(2, '0')}-${String(currentCalDate.getDate()).padStart(2, '0')}`;
-    logs[todayStr] = { status, title: MENUS[selectedMenuKey] ? MENUS[selectedMenuKey].title : "カスタムトレーニング", time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+    const realToday = new Date();
+    const todayStr = `${realToday.getFullYear()}-${String(realToday.getMonth() + 1).padStart(2, '0')}-${String(realToday.getDate()).padStart(2, '0')}`;
+    logs[todayStr] = { 
+        status, 
+        title: MENUS[selectedMenuKey] ? MENUS[selectedMenuKey].title : "カスタムトレーニング", 
+        time: realToday.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+    };
     localStorage.setItem("habit_timer_logs", JSON.stringify(logs));
 }
+
 function moveMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
 
 function renderCalendar() {
