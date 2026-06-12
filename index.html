@@ -237,20 +237,6 @@ function parseSetsToItems(name, workSec, restSec, sets, arrowType = "none", isCo
     return { name, w: workSec, r: restSec, s: sets, arrowType, c: isCountBase, fixedDelay, enabledDirs };
 }
 
-// 自動判別：種目名から最適な矢印初期設定を返す
-function detectDefaultArrowSettings(name) {
-    if (name.includes("ラインホップ")) {
-        return { arrowType: "none", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
-    }
-    if (name.includes("チャイナステップ待機→ランダム") || name.includes("反応ステップ") || name.includes("反応スプリット")) {
-        return { arrowType: "step", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
-    }
-    if (name.includes("反応フットワーク") || name.includes("6方向反応移動")) {
-        return { arrowType: "footwork", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
-    }
-    return { arrowType: "none", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
-}
-
 // 【確定メニューリスト】
 const DEFAULT_MENUS = {
     "DAY1": { 
@@ -456,7 +442,7 @@ function loadArrowSettings() {
     }
 }
 
-// 【修正点①】メニューデータの読み込み仕様をクリーン化（ユーザー編集を最優先）
+// メニューデータの読み込み（常にローカルストレージの編集データを100%信用）
 function loadMenus() {
     const saved = localStorage.getItem("custom_habit_menus");
     if (saved) {
@@ -491,7 +477,7 @@ function resetAllToDefault() {
 
     localStorage.removeItem("custom_habit_menus");
     localStorage.removeItem("global_arrow_speeds");
-    localStorage.removeItem("habit_timer_logs"); // カレンダーログもクリアしたい場合は残す
+    localStorage.removeItem("habit_timer_logs");
     
     alert("🔄 すべての設定をデフォルト状態にリセットしました！");
     location.reload();
@@ -721,7 +707,6 @@ function openEditScreen2(key) {
     updateSortButtons();
 }
 
-// 【修正点③】新規種目を追加した際も自動判別が最初から噛み合うように初期設定
 function addNewItemRow(item = null) {
     if (!item) {
         item = { name: "", w: 15, r: 30, s: 3, arrowType: "none", c: false, fixedDelay: 0, enabledDirs: [45, 90, 135, 225, 270, 315] };
@@ -797,6 +782,7 @@ function addNewItemRow(item = null) {
     card.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
+// 【変更点】種目名から「回」が含まれる場合のDONEボタンの自動判別のみ残し、矢印タイプの自動判別コードを完全に削除
 function handleItemNameInput(inputElement) {
     const card = inputElement.parentElement;
     const name = inputElement.value;
@@ -804,11 +790,6 @@ function handleItemNameInput(inputElement) {
     if (name.includes("回")) {
         doneChk.checked = true;
     }
-    
-    const arrowSelect = card.querySelector(".item-arrow-type");
-    const auto = detectDefaultArrowSettings(name);
-    arrowSelect.value = auto.arrowType;
-    toggleArrowDetailBox(arrowSelect);
 }
 
 function toggleArrowDetailBox(selectElement) {
@@ -1027,7 +1008,6 @@ function triggerNextArrowInterval(isFirstTrigger = false) {
 let currentCalDate = new Date();
 function getLogData() { return JSON.parse(localStorage.getItem("habit_timer_logs") || "{}"); }
 
-// 【修正点②】ログ保存時の日付取得を「表示中のカレンダーの月」ではなく「本物の今日」に固定
 function saveLog(status) {
     const logs = getLogData();
     const realToday = new Date();
