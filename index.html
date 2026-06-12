@@ -52,8 +52,21 @@
         .time-left { font-size: 96px; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: var(--primary); line-height: 1; }
         .btn-done-action { background: var(--success); color: #0f172a; font-size: 28px; font-weight: 800; border-radius: 20px; height: 100px; width: 80%; box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3); margin: 0 auto; }
         
-        /* 矢印表示エリア（大きく、囲みや境界線を撤去） */
-        .direction-box { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 110px; margin: 10px 0; min-height: 120px; background: transparent; }
+        /* 【矢印改善】パターン1ベース：先端が大きめの極太CSS自作矢印 */
+        .direction-box { height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; min-height: 160px; background: transparent; }
+        
+        /* 先端肥大のカスタム矢印パーツ */
+        .custom-arrow {
+            width: 130px;
+            height: 130px;
+            background-color: var(--primary);
+            /* clip-pathで「先端が大きめ・太軸の矢印形状」を描写 */
+            clip-path: polygon(50% 0%, 100% 45%, 70% 45%, 70% 100%, 30% 100%, 30% 45%, 0% 45%);
+            transition: transform 0.1s ease-out;
+            display: none; /* 初期状態は非表示 */
+        }
+        .custom-arrow.active { display: block; }
+        
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         /* 編集用の共通カードスタイル */
@@ -153,7 +166,9 @@
                 <button id="btn-done" class="btn-done-action" onclick="pressDone()" style="display:none;">DONE</button>
             </div>
 
-            <div id="direction-arrow" class="direction-box"></div>
+            <div class="direction-box">
+                <div id="custom-arrow-element" class="custom-arrow"></div>
+            </div>
         </div>
         <div class="control-grid">
             <button id="btn-pause" class="btn-warning" onclick="togglePause()">一時停止</button>
@@ -233,24 +248,33 @@ let isPaused = false;
 let selectedMenuKey = "";
 let directionTimerId = null;
 let clearArrowTimerId = null;
-const DIRECTIONS = ["⬆️", "⬇️", "⬅️", "➡️", "↖️", "↗️", "↙️", "↘️"];
+
+// 【角度設定】各方向に対応する回転角度（deg）を定義
+const ANGLES = [
+    0,     // 上 (↑)
+    180,   // 下 (↓)
+    270,   // 左 (←)
+    90,    // 右 (→)
+    45,    // 右上 (↗)
+    315,   // 左上 (↖)
+    135,   // 右下 (↘)
+    225    // 左下 (↙)
+];
+
 let audioCtx = null;
-let wakeLock = null; // スリープ防止用
+let wakeLock = null; 
 
 window.addEventListener('DOMContentLoaded', () => {
     loadMenus();
     refreshMainScreenSelect();
     
-    // 【音声バグ改善】バックグラウンドから復帰した際にAudioContextを復活させる
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             resumeAudioContext();
-            // スリープ防止を再要求
             if (document.getElementById('screen-timer').classList.contains('active')) {
                 requestWakeLock();
             }
         } else {
-            // バックグラウンド時はスリープ防止を一時解除
             releaseWakeLock();
         }
     });
@@ -280,7 +304,6 @@ function refreshMainScreenSelect() {
     }
 }
 
-// 【スリープ防止機能】
 async function requestWakeLock() {
     try {
         if ('wakeLock' in navigator) {
@@ -298,7 +321,6 @@ function releaseWakeLock() {
     }
 }
 
-// 【音声バグ改善】AudioContext復帰処理
 function resumeAudioContext() {
     if (audioCtx) {
         if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
@@ -309,15 +331,16 @@ function resumeAudioContext() {
     }
 }
 
+// 【オシレーター変更】sineに変更
 function playTone(freq, duration) {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        resumeAudioContext(); // 再アクティブ化を徹底
+        resumeAudioContext(); 
         
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         
-        osc.type = 'sine'; 
+        osc.type = 'sine'; // squareからsine(正弦波)へ変更、柔らかな音色に
         osc.frequency.value = freq;
         gain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
@@ -329,8 +352,6 @@ function playTone(freq, duration) {
 function changeScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
-    
-    // タイマー画面以外に遷移した場合はスリープ防止を解除
     if (screenId !== 'screen-timer') {
         releaseWakeLock();
     }
@@ -516,18 +537,15 @@ function startTraining() {
     selectedMenuKey = document.getElementById("menu-select").value;
     if (!selectedMenuKey) return;
     
-    // ユーザー操作由来のコンテキスト初期化
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     resumeAudioContext();
     playTone(440, 0.01);
 
-    // スリープ防止を起動
     requestWakeLock();
 
     const parsedMainItems = buildMainTimelineItems(MENUS[selectedMenuKey].items);
     currentTimeline = [...COMMON_WARMUP, ...parsedMainItems, ...COMMON_COOLDOWN];
     
-    // プルダウンの生成
     buildJumpSelectOptions();
 
     currentIdx = 0; isPaused = false;
@@ -535,7 +553,6 @@ function startTraining() {
     runPhase();
 }
 
-// 【途中から選択】ジャンプ用プルダウンの生成
 function buildJumpSelectOptions() {
     const select = document.getElementById("timer-jump-select");
     select.innerHTML = "";
@@ -547,16 +564,19 @@ function buildJumpSelectOptions() {
     });
 }
 
-// プルダウン選択時のジャンプ処理
 function jumpToPhase(index) {
-    resumeAudioContext(); // 音声コンテキストの復帰
+    resumeAudioContext(); 
     currentIdx = parseInt(index);
     runPhase();
 }
 
 function runPhase() {
     clearInterval(timerId); clearTimeout(directionTimerId); clearTimeout(clearArrowTimerId);
-    document.getElementById("direction-arrow").textContent = "";
+    
+    // 矢印要素を非表示にしてリセット
+    const arrowEl = document.getElementById("custom-arrow-element");
+    arrowEl.classList.remove("active");
+    arrowEl.style.transform = "rotate(0deg)";
 
     if (currentIdx >= currentTimeline.length) {
         saveLog("completed");
@@ -566,7 +586,6 @@ function runPhase() {
     }
     if (currentIdx < 0) currentIdx = 0;
 
-    // ジャンププルダウンの選択位置を同期
     document.getElementById("timer-jump-select").value = currentIdx;
 
     const phase = currentTimeline[currentIdx];
@@ -602,7 +621,7 @@ function runPhase() {
 function updateTimerDisplay() { document.getElementById("time-left").textContent = timeLeft; }
 
 function togglePause() {
-    resumeAudioContext(); // ボタン操作タイミングでも音声復帰を促す
+    resumeAudioContext(); 
     isPaused = !isPaused;
     document.getElementById("btn-pause").textContent = isPaused ? "再開" : "一時停止";
     document.getElementById("btn-pause").className = isPaused ? "btn-success" : "btn-warning";
@@ -619,18 +638,26 @@ function interruptTraining() {
     }
 }
 
+// 【ランダム矢印制御】自作CSSの角度を変更して表示
 function triggerRandomDirection() {
     if (isPaused) { directionTimerId = setTimeout(triggerRandomDirection, 1000); return; }
     
     const phase = currentTimeline[currentIdx];
     const phaseName = phase ? phase.name : "";
 
-    document.getElementById("direction-arrow").textContent = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+    const arrowEl = document.getElementById("custom-arrow-element");
+    
+    // ランダムに角度を選択して回転させ、表示クラスを付与
+    const randomAngle = ANGLES[Math.floor(Math.random() * ANGLES.length)];
+    arrowEl.style.transform = `rotate(${randomAngle}deg)`;
+    arrowEl.classList.add("active");
+
     playTone(660, 0.05);
     
+    // 1秒後に一旦非表示（パッと消える効果）
     clearTimeout(clearArrowTimerId);
     clearArrowTimerId = setTimeout(() => {
-        document.getElementById("direction-arrow").textContent = "";
+        arrowEl.classList.remove("active");
     }, 1000);
     
     let nextIntervalSec = 2 + Math.random() * 2; 
