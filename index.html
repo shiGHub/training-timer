@@ -52,38 +52,46 @@
         .time-left { font-size: 96px; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: var(--primary); line-height: 1; }
         .btn-done-action { background: var(--success); color: #0f172a; font-size: 28px; font-weight: 800; border-radius: 20px; height: 100px; width: 80%; box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3); margin: 0 auto; }
         
-        /* 【矢印改善】パターン1ベース：先端が大きめの極太CSS自作矢印 */
+        /* 矢印エリア */
         .direction-box { height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; min-height: 160px; background: transparent; }
-        
-        /* 先端肥大のカスタム矢印パーツ */
         .custom-arrow {
             width: 130px;
             height: 130px;
             background-color: var(--primary);
-            /* clip-pathで「先端が大きめ・太軸の矢印形状」を描写 */
             clip-path: polygon(50% 0%, 100% 45%, 70% 45%, 70% 100%, 30% 100%, 30% 45%, 0% 45%);
             transition: transform 0.1s ease-out;
-            display: none; /* 初期状態は非表示 */
+            display: none; 
         }
         .custom-arrow.active { display: block; }
         
         .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* 編集用の共通カードスタイル */
+        /* 編集用のカードスタイル */
         .edit-item-card, .menu-manage-card { background: #0f172a; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid #334155; position: relative; }
         .edit-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
         .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer; margin-top: 4px; }
         .checkbox-label input { width: 16px; height: 16px; }
         
-        /* アクションボタンエリア */
+        /* 矢印詳細用スタイル */
+        .arrow-detail-box { background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 8px; border: 1px dashed #475569; display: none; }
+        .directions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; text-align: center; }
+        .direction-chip { background: #0f172a; padding: 6px; border-radius: 6px; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #334155; }
+        .direction-chip input { margin-bottom: 4px; width: 14px; height: 14px; }
+
+        /* グローバル設定画面用のレイアウト */
+        .settings-section { background: #1e293b; padding: 14px; border-radius: 14px; margin-bottom: 16px; border: 1px solid #334155; }
+        .settings-title { color: var(--primary); font-size: 15px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
+        .settings-dir-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; align-items: center; }
+        .settings-dir-row label { margin-bottom: 0; font-size: 13px; }
+        .settings-dir-row input { margin-bottom: 0; padding: 6px; font-size: 13px; text-align: center; border-radius: 8px; }
+
         .edit-card-actions { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; margin-top: 12px; }
         .btn-action-small { padding: 8px; margin: 0; font-size: 12px; border-radius: 8px; }
 
-        /* メニュー並び替え用カード固有スタイル */
         .menu-manage-card { display: flex; flex-direction: column; justify-content: space-between; }
         .menu-title-text { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--text-main); word-break: break-all; }
 
-        /* DotHabit風カレンダー */
+        /* カレンダー */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
         .day-name { font-weight: 600; color: var(--text-sub); font-size: 12px; padding-bottom: 8px; }
@@ -98,10 +106,12 @@
         .log-details { margin-top: 24px; padding: 16px; background: #0f172a; border-radius: 14px; font-size: 14px; min-height: 70px; border: 1px solid #334155; color: var(--text-sub); }
         .log-details strong { color: var(--text-main); }
 
-        /* 進行中ジャンプ用のセレクトボックススタイル */
         .jump-select-container { margin-bottom: 10px; }
         .jump-select-container label { font-size: 12px; margin-bottom: 3px; color: var(--primary); }
         select.jump-select { padding: 8px 12px; font-size: 14px; margin-bottom: 0; background: #1e293b; border-color: #475569; }
+        
+        /* 区切り線とリセットボタン用の装飾 */
+        .danger-zone { margin-top: 24px; border-top: 1px solid #334155; padding-top: 14px; }
     </style>
 </head>
 <body>
@@ -112,22 +122,35 @@
         <div style="margin-bottom: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">メニューを選んでスタート</div>
         <select id="menu-select"><option value="">読み込み中...</option></select>
         <button class="btn-primary" onclick="startTraining()">トレーニング開始</button>
+        <button class="btn-secondary" onclick="openArrowSettingsScreen()">🏹 矢印表示設定の編集</button>
         <button class="btn-secondary" onclick="openEditScreen1()">⚙️ メニューの編集・作成</button>
         <button class="btn-secondary" onclick="changeScreen('screen-record'); renderCalendar();">Record</button>
+        
+        <div class="danger-zone">
+            <button class="btn-danger" style="background: #ef4444; color: #fff; padding: 12px;" onclick="resetAllToDefault()">⚠️ すべての設定をデフォルトに戻す</button>
+        </div>
+    </div>
+
+    <div id="screen-arrow-settings" class="screen">
+        <h2>矢印表示のマスター設定</h2>
+        <div style="margin-bottom: 15px; text-align: center; color: var(--text-sub); font-size: 12px; line-height: 1.4;">
+            各タイプ別の表示間隔（秒）を変更できます。<br>個人スキルや体力に合わせて調整してください。
+        </div>
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 4px;" id="arrow-settings-container">
+            </div>
+        <button class="btn-primary" onclick="saveArrowSettings()">💾 設定を保存</button>
+        <button class="btn-secondary" onclick="changeScreen('screen-start')">キャンセル</button>
     </div>
 
     <div id="screen-edit-1" class="screen">
         <h2>メニューの編集・並び替え</h2>
-        
         <div style="margin-bottom: 20px; background: #0f172a; padding: 16px; border-radius: 14px; border: 1px solid #334155;">
             <label for="new-menu-title" style="color: var(--primary);">✨ 新しいメニューを作成</label>
             <input type="text" id="new-menu-title" placeholder="例：DAY8：瞬発ステップ特化" style="margin-bottom: 10px;">
             <button class="btn-success" onclick="createNewMenu()" style="margin: 0; padding: 12px;">新規作成して中身を編集</button>
         </div>
-
         <label>既存メニューの一覧・並び替え</label>
         <div style="max-height: 320px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="menu-list-container"></div>
-
         <button class="btn-secondary" onclick="changeScreen('screen-start')">戻る</button>
     </div>
 
@@ -137,9 +160,7 @@
             <label>メニュータイトル</label>
             <input type="text" id="edit-current-menu-title">
         </div>
-        
         <div style="max-height: 380px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="edit-items-container"></div>
-
         <button class="btn-success" onclick="addNewItemRow()">➕ 種目を追加</button>
         <button class="btn-primary" onclick="saveEditedMenu()">💾 変更を保存</button>
         <button id="btn-delete-menu" class="btn-danger" onclick="deleteMenu()">🗑️ このメニューを削除</button>
@@ -151,21 +172,17 @@
             <label for="timer-jump-select">🏃‍♂️ 現在の進行度（タップして種目を移動）</label>
             <select id="timer-jump-select" class="jump-select" onchange="jumpToPhase(this.value)"></select>
         </div>
-
         <div class="nav-grid">
             <button class="btn-nav" onclick="prevMenu()">◀ 前のメニュー</button>
             <button class="btn-nav" onclick="nextMenu()">次のメニュー ▶</button>
         </div>
-
         <div class="timer-display">
             <div id="current-phase" class="phase-title">ウォームアップ</div>
             <div id="next-phase" class="next-phase">次: ---</div>
-            
             <div class="display-main-box">
                 <div id="time-left" class="time-left">00</div>
-                <button id="btn-done" class="btn-done-action" onclick="pressDone()" style="display:none;">DONE</button>
+                <button id="btn-done" class="btn-done-action" onclick="pressDone()">DONE</button>
             </div>
-
             <div class="direction-box">
                 <div id="custom-arrow-element" class="custom-arrow"></div>
             </div>
@@ -190,53 +207,212 @@
 </div>
 
 <script>
-function parseSetsToItems(name, workSec, restSec, sets, isRandom, isCountBase) {
-    return { name, w: workSec, r: restSec, s: sets, rand: isRandom, c: isCountBase };
-}
-
-const DEFAULT_MENUS = {
-    "DAY1": { title: "DAY1：神経系フットワーク", items: [parseSetsToItems("ラインホップ前後", 15, 30, 5, false, false), parseSetsToItems("ラインホップ左右", 15, 30, 5, false, false), parseSetsToItems("片脚ラインホップ", 12, 30, 3, false, false), parseSetsToItems("ポゴジャンプ", 12, 40, 5, false, false), parseSetsToItems("スプリット→爆発1歩 (8回)", 0, 45, 4, false, true), parseSetsToItems("チャイナステップ→ランダム反応", 12, 35, 5, true, false), parseSetsToItems("反応スプリット→爆発1歩", 12, 40, 5, true, false)] },
-    "DAY2": { title: "DAY2：最大筋力＋減速能力", items: [parseSetsToItems("スクワット (5回)", 0, 180, 5, false, true), parseSetsToItems("ブルガリアンスクワット (6回/脚)", 0, 120, 4, false, true), parseSetsToItems("デッドリフト (4回)", 0, 180, 4, false, true), parseSetsToItems("スプリットスクワット (8回/脚)", 0, 90, 3, false, true), parseSetsToItems("ヒップスラスト (8回)", 0, 120, 3, false, true), parseSetsToItems("ノルディックハム (5回)", 0, 90, 3, false, true), parseSetsToItems("コペンハーゲンプランク", 30, 30, 3, false, false), parseSetsToItems("プランク (45秒)", 45, 30, 3, false, false)] },
-    "DAY3": { title: "DAY3：コート神経系フットワーク", items: [parseSetsToItems("前後2点ベース往復", 15, 40, 6, false, false), parseSetsToItems("左右2点ベース往復", 15, 40, 6, false, false), parseSetsToItems("6方向フットワーク", 15, 45, 10, false, false), parseSetsToItems("スプリット→6方向反応移動", 15, 45, 10, true, false), parseSetsToItems("ランダム方向反応フットワーク", 15, 45, 10, true, false), parseSetsToItems("後方打球→前ネット切り返し", 15, 45, 6, false, false), parseSetsToItems("高速連続シャドー", 15, 30, 10, false, false), parseSetsToItems("前衛高速プッシュ連続", 15, 30, 8, false, false), parseSetsToItems("フォーム維持シャドー", 40, 40, 6, false, false), parseSetsToItems("軽フットワーク流し", 300, 0, 1, false, false)] },
-    "DAY4": { title: "DAY4：積極回復＋循環", items: [parseSetsToItems("股関節モビリティ (10回/方向)", 0, 0, 1, false, true), parseSetsToItems("足首モビリティ (15回/脚)", 0, 0, 1, false, true), parseSetsToItems("胸椎モビリティ (10回/側)", 0, 0, 1, false, true), parseSetsToItems("Zone2ジョグ or バイク", 1050, 0, 1, false, false), parseSetsToItems("足底リリース", 150, 0, 1, false, false)] },
-    "DAY5": { title: "DAY5：パワー＋横方向SSC", items: [parseSetsToItems("スクワットジャンプ (4回)", 0, 120, 5, false, true), parseSetsToItems("ブルガリアンジャンプ (4回/脚)", 0, 90, 5, false, true), parseSetsToItems("スケータージャンプ (6回/側)", 0, 60, 4, false, true), parseSetsToItems("ラテラルバウンド (5回/側)", 0, 75, 4, false, true), parseSetsToItems("片脚ホップ (5回/脚)", 0, 60, 4, false, true), parseSetsToItems("デプスジャンプ (3回)", 0, 90, 4, false, true), parseSetsToItems("ポゴジャンプ", 12, 40, 4, false, false)] },
-    "DAY6": { title: "DAY6：調整＋神経維持", items: [parseSetsToItems("軽チャイナステップ", 20, 30, 3, false, false), parseSetsToItems("軽ポゴジャンプ", 10, 30, 3, false, false), parseSetsToItems("反応スプリット→爆発1歩", 10, 40, 4, true, false), parseSetsToItems("低強度フォームシャドー", 20, 30, 4, false, false), parseSetsToItems("デッドバグ (10回)", 0, 20, 2, false, true), parseSetsToItems("YTW (10回)", 0, 30, 2, false, true), parseSetsToItems("チューブ外旋 (15回)", 0, 30, 2, false, true), parseSetsToItems("股関節モビリティ (10回/方向)", 0, 0, 1, false, true), parseSetsToItems("足首モビリティ (15回/脚)", 0, 0, 1, false, true)] },
-    "DAY7": { title: "DAY7：コート実戦統合", items: [parseSetsToItems("6方向フットワーク", 30, 45, 8, false, false), parseSetsToItems("6方向連続フットワーク", 30, 45, 8, false, false), parseSetsToItems("ランダム方向反応フットワーク", 20, 45, 10, true, false), parseSetsToItems("後方スマッシュ→ベース戻り", 20, 40, 8, false, false), parseSetsToItems("前衛左右プッシュ→中央戻り", 20, 30, 8, false, false), parseSetsToItems("左右スマッシュ→ベース戻り", 30, 45, 6, false, false), parseSetsToItems("全面ラリー継続シャドー", 45, 45, 8, false, false), parseSetsToItems("スマッシュ→レシーブ切替", 30, 30, 8, false, false), parseSetsToItems("疲労下6方向フットワーク維持", 40, 40, 6, false, false), parseSetsToItems("フォーム維持シャドー", 40, 40, 4, false, false), parseSetsToItems("軽フットワーク流し", 300, 0, 1, false, false)] }
+// ●初期デフォルト設定の定義
+const INITIAL_ARROW_SETTINGS = {
+    footwork: {
+        baseTimes: { 0: 2.5, 45: 2.5, 90: 2.0, 135: 3.0, 180: 3.0, 225: 3.0, 270: 2.0, 315: 2.5 },
+        delayMin: 0, delayMax: 0
+    },
+    step: {
+        baseTimes: { 0: 1.0, 45: 1.0, 90: 1.0, 135: 1.5, 180: 1.5, 225: 1.5, 270: 1.0, 315: 1.0 },
+        delayMin: 0, delayMax: 0
+    },
+    random: {
+        delayMin: 1.0, delayMax: 3.0
+    }
 };
 
-function createSets(name, workSec, restSec, sets, isRandom = false, isCountBase = false) {
+let GLOBAL_ARROW_SETTINGS = {};
+
+// 8方向のインデックス定義マップ
+const DIRECTION_MAP = [
+    { name: "前(上)", angle: 0 }, { name: "後(下)", angle: 180 }, 
+    { name: "左", angle: 270 },   { name: "右", angle: 90 },
+    { name: "左上", angle: 315 }, { name: "右上", angle: 45 }, 
+    { name: "左下", angle: 225 }, { name: "右下", angle: 135 }
+];
+
+// ヘルパー：初期メニュー生成用データパーサー
+function parseSetsToItems(name, workSec, restSec, sets, arrowType = "none", isCountBase = false, fixedDelay = 0, enabledDirs = [45, 90, 135, 225, 270, 315]) {
+    return { name, w: workSec, r: restSec, s: sets, arrowType, c: isCountBase, fixedDelay, enabledDirs };
+}
+
+// 自動判別：種目名から最適な矢印初期設定を返す
+function detectDefaultArrowSettings(name) {
+    if (name.includes("ラインホップ")) {
+        return { arrowType: "none", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
+    }
+    if (name.includes("チャイナステップ待機→ランダム") || name.includes("反応ステップ") || name.includes("反応スプリット")) {
+        return { arrowType: "step", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
+    }
+    if (name.includes("反応フットワーク") || name.includes("6方向反応移動")) {
+        return { arrowType: "footwork", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
+    }
+    return { arrowType: "none", enabledDirs: [45, 90, 135, 225, 270, 315], fixedDelay: 0 };
+}
+
+// 【確定メニューリスト】
+const DEFAULT_MENUS = {
+    "DAY1": { 
+        title: "DAY1：神経系フットワーク（接地・初動・反応）", 
+        items: [
+            parseSetsToItems("ラインホップ前後", 15, 30, 5, "none"), 
+            parseSetsToItems("ラインホップ左右", 15, 30, 5, "none"), 
+            parseSetsToItems("片脚ラインホップ：12秒/脚", 12, 30, 3, "none"), 
+            parseSetsToItems("ポゴジャンプ", 12, 40, 5, "none"), 
+            parseSetsToItems("スプリット→任意方向ステップ：8回", 0, 45, 4, "none", true), 
+            parseSetsToItems("チャイナステップ待機→ランダム方向反応ステップ", 12, 35, 5, "random"), 
+            parseSetsToItems("スプリット→ランダム方向ステップ", 12, 40, 5, "none") 
+        ] 
+    },
+    "DAY2": { 
+        title: "DAY2：最大筋力＋減速能力（下半身）", 
+        items: [
+            parseSetsToItems("スクワット：5回", 0, 180, 5, "none", true), 
+            parseSetsToItems("ブルガリアンスクワット：6回/脚", 0, 120, 4, "none", true), 
+            parseSetsToItems("デッドリフト：4回", 0, 180, 4, "none", true), 
+            parseSetsToItems("スプリットスクワット：8回/脚", 0, 90, 3, "none", true), 
+            parseSetsToItems("ヒップスラスト：8回", 0, 120, 3, "none", true), 
+            parseSetsToItems("ノルディックハム：5回", 0, 90, 3, "none", true), 
+            parseSetsToItems("コペンハーゲンプランク：30秒/側", 30, 30, 3, "none", false), 
+            parseSetsToItems("プランク", 45, 30, 3, "none", false)
+        ] 
+    },
+    "DAY3": { 
+        title: "DAY3：コート神経系フットワーク（2時間）", 
+        items: [
+            parseSetsToItems("前後2点ベース往復", 15, 40, 6, "none"), 
+            parseSetsToItems("左右2点ベース往復", 15, 40, 6, "none"), 
+            parseSetsToItems("6方向フットワーク（フォーム・戻り重視）", 15, 45, 10, "none"), 
+            parseSetsToItems("スプリット→ランダム方向反応フットワーク", 15, 45, 10, "footwork"), 
+            parseSetsToItems("ランダム方向反応フットワーク（流れ重視）", 15, 45, 10, "footwork"), 
+            parseSetsToItems("後方打球→前ネット切り返し", 15, 45, 6, "none"), 
+            parseSetsToItems("高速連続シャドー", 15, 30, 10, "none"), 
+            parseSetsToItems("前衛高速プッシュ連続", 15, 30, 8, "none"), 
+            parseSetsToItems("フォーム維持シャドー", 40, 40, 6, "none"), 
+            parseSetsToItems("軽フットワーク流し", 300, 0, 1, "none", false)
+        ] 
+    },
+    "DAY3_ALT": { 
+        title: "DAY3：コート神経系フットワーク（コートなし代替・2時間相当）", 
+        items: [
+            parseSetsToItems("前後マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
+            parseSetsToItems("左右マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
+            parseSetsToItems("ランダム方向反応ステップ", 15, 45, 10, "step"), 
+            parseSetsToItems("スプリット→任意方向ステップ：10回", 0, 40, 6, "none", true), 
+            parseSetsToItems("任意方向ステップ（止まらない）", 20, 45, 8, "none"), 
+            parseSetsToItems("後方想定→前方向切り返し", 15, 45, 6, "none"), 
+            parseSetsToItems("高速シャドーフットワーク（小幅）", 20, 30, 10, "none"), 
+            parseSetsToItems("ランダム方向反応ステップ", 15, 30, 8, "step"), 
+            parseSetsToItems("スプリット→即スイング→即停止：10回", 0, 40, 6, "none", true), 
+            parseSetsToItems("低姿勢ホールド＋微小ステップ", 40, 40, 6, "none"), 
+            parseSetsToItems("構えリセット（完全静止→再構え）：10回", 0, 30, 3, "none", true), 
+            parseSetsToItems("スイング後制動（完全停止意識）：12回", 0, 45, 4, "none", true), 
+            parseSetsToItems("軽フットワーク流し（その場）", 300, 0, 1, "none", false)
+        ] 
+    },
+    "DAY4": { 
+        title: "DAY4：積極回復＋循環", 
+        items: [
+            parseSetsToItems("股関節モビリティ：10回/方向", 0, 0, 1, "none", true), 
+            parseSetsToItems("足首モビリティ：15回/脚", 0, 0, 1, "none", true), 
+            parseSetsToItems("胸椎モビリティ：10回/側", 0, 0, 1, "none", true), 
+            parseSetsToItems("Zone2ジョグ or バイク", 1050, 0, 1, "none", false), 
+            parseSetsToItems("足底リリース", 150, 0, 1, "none", false)
+        ] 
+    },
+    "DAY5": { 
+        title: "DAY5：パワー＋横方向SSC", 
+        items: [
+            parseSetsToItems("スクワットジャンプ：4回", 0, 120, 5, "none", true), 
+            parseSetsToItems("ブルガリアンジャンプ：4回/脚", 0, 90, 5, "none", true), 
+            parseSetsToItems("スケータージャンプ：6回/側", 0, 60, 4, "none", true), 
+            parseSetsToItems("ラテラルバウンド：5回/側", 0, 75, 4, "none", true), 
+            parseSetsToItems("片脚ホップ：5回/脚", 0, 60, 4, "none", true), 
+            parseSetsToItems("デプスジャンプ：3回", 0, 90, 4, "none", true), 
+            parseSetsToItems("ポゴジャンプ", 12, 40, 4, "none", false)
+        ] 
+    },
+    "DAY6": { 
+        title: "DAY6：調整＋神経維持", 
+        items: [
+            parseSetsToItems("デッドバグ：10回", 0, 20, 2, "none", true), 
+            parseSetsToItems("YTW：10回", 0, 30, 2, "none", true), 
+            parseSetsToItems("チューブ外旋：15回", 0, 30, 2, "none", true), 
+            parseSetsToItems("股関節モビリティ：10回/方向", 0, 0, 1, "none", true), 
+            parseSetsToItems("足首モビリティ：15回/脚", 0, 0, 1, "none", true)
+        ] 
+    },
+    "DAY7": { 
+        title: "DAY7：コート実戦統合（2時間）", 
+        items: [
+            parseSetsToItems("6方向フットワーク（フォーム・戻り重視）", 30, 45, 8, "none"), 
+            parseSetsToItems("6方向フットワーク（スピード・切り返し重視）", 30, 45, 8, "none"), 
+            parseSetsToItems("ランダム方向反応フットワーク", 20, 45, 10, "footwork"), 
+            parseSetsToItems("後方スマッシュ→ベース戻り(縦)", 20, 40, 8, "none"), 
+            parseSetsToItems("前衛左右プッシュ→中央戻り", 20, 30, 8, "none"), 
+            parseSetsToItems("左右スマッシュ→ベース戻り(斜め)", 30, 45, 6, "none"), 
+            parseSetsToItems("全面ラリー継続シャドー", 45, 45, 8, "none"), 
+            parseSetsToItems("スマッシュ→レシーブ切替シャドー", 30, 30, 8, "none"), 
+            parseSetsToItems("疲労下6方向フットワーク維持", 40, 40, 6, "none"), 
+            parseSetsToItems("フォーム維持シャドー", 40, 40, 4, "none"), 
+            parseSetsToItems("軽フットワーク流し", 300, 0, 1, "none", false)
+        ] 
+    },
+    "DAY7_ALT": { 
+        title: "DAY7：コート実戦統合（コートなし代替・2時間相当）", 
+        items: [
+            parseSetsToItems("6方向想定ステップ（小幅）", 30, 45, 8, "none"), 
+            parseSetsToItems("ランダム方向反応ステップ", 20, 45, 10, "step"), 
+            parseSetsToItems("スプリット→任意方向ステップ：12回", 0, 40, 6, "none", true), 
+            parseSetsToItems("後方想定→前ネット切り返し", 15, 45, 8, "none"), 
+            parseSetsToItems("左右連続切り返しステップ", 20, 40, 8, "none"), 
+            parseSetsToItems("連続仮想ラリー移動（止まらない）", 30, 45, 6, "none"), 
+            parseSetsToItems("連続シャドー（方向変化多）", 40, 45, 8, "none"), 
+            parseSetsToItems("スマッシュ→レシーブ切替シャドー", 30, 30, 8, "none"), 
+            parseSetsToItems("疲労下初動反応（動作遅延状態から開始）", 15, 45, 6, "none"), 
+            parseSetsToItems("低姿勢維持→ランダム方向反応ステップ", 40, 40, 6, "step"), 
+            parseSetsToItems("制御シャドー（崩れ防止）", 40, 40, 4, "none"), 
+            parseSetsToItems("スイング後完全停止ドリル：10回", 0, 45, 4, "none", true), 
+            parseSetsToItems("軽ステップ流し（リズム維持）", 300, 0, 1, "none", false)
+        ] 
+    }
+};
+
+// タイムライン生成
+function createSets(name, workSec, restSec, sets, arrowType = "none", isCountBase = false, fixedDelay = 0, enabledDirs = [45, 90, 135, 225, 270, 315]) {
     let arr = [];
     for (let i = 1; i <= sets; i++) {
         if(isCountBase) {
-            arr.push({ name: `${name} [${i}/${sets}]`, type: "count", duration: 0, isRandom: isRandom });
+            arr.push({ name: `${name} [${i}/${sets}]`, type: "count", duration: 0, arrowType, fixedDelay, enabledDirs });
         } else {
-            arr.push({ name: `${name} [${i}/${sets}]`, type: "work", duration: workSec, isRandom: isRandom });
+            arr.push({ name: `${name} [${i}/${sets}]`, type: "work", duration: workSec, arrowType, fixedDelay, enabledDirs });
         }
         if (restSec > 0) {
-            arr.push({ name: `${name} (休憩) [${i}/${sets}]`, type: "rest", duration: restSec, isRandom: false });
+            arr.push({ name: `${name} (休憩) [${i}/${sets}]`, type: "rest", duration: restSec, arrowType: "none", fixedDelay: 0, enabledDirs: [] });
         }
     }
     return arr;
 }
 
 const COMMON_WARMUP = [
-    { name: "レッグスイング 前後 (15回/脚)", type: "count", duration: 0, isRandom: false },
-    { name: "レッグスイング 左右 (15回/脚)", type: "count", duration: 0, isRandom: false },
-    { name: "股関節回し (10回/方向)", type: "count", duration: 0, isRandom: false },
-    { name: "ワールドグレイテストストレッチ (5回/側)", type: "count", duration: 0, isRandom: false },
-    { name: "足首背屈モビリティ (15回/脚)", type: "count", duration: 0, isRandom: false },
-    ...createSets("ジョグ (60秒)", 60, 30, 2),
-    ...createSets("サイドステップ (20秒)", 20, 20, 2),
-    ...createSets("クロスステップ (20秒)", 20, 20, 2),
-    ...createSets("軽チャイナステップ (20秒)", 20, 30, 3)
+    { name: "レッグスイング 前後：15回/脚 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] },
+    { name: "レッグスイング 左右：15回/脚 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] },
+    { name: "股関節回し：10回/方向 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] },
+    { name: "ワールドグレイテストストレッチ：5回/側 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] },
+    { name: "足首背屈モビリティ：15回/脚 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] },
+    ...createSets("ジョグ", 60, 30, 2, "none"),
+    ...createSets("サイドステップ", 20, 20, 2, "none"),
+    ...createSets("クロスステップ", 20, 20, 2, "none"),
+    ...createSets("軽チャイナステップ", 20, 30, 3, "none")
 ];
 
 const COMMON_COOLDOWN = [
-    ...createSets("ふくらはぎストレッチ (30秒/側)", 30, 0, 2),
-    ...createSets("足底ストレッチ (30秒)", 30, 0, 2),
-    ...createSets("股関節ストレッチ (30秒/側)", 30, 0, 2),
-    ...createSets("臀筋ストレッチ (30秒/側)", 30, 0, 2),
-    { name: "胸椎回旋ストレッチ (10回/側)", type: "count", duration: 0, isRandom: false }
+    ...createSets("ふくらはぎストレッチ：30秒/側", 30, 0, 2, "none"),
+    ...createSets("足底ストレッチ", 30, 0, 2, "none"),
+    ...createSets("股関節ストレッチ：30秒/側", 30, 0, 2, "none"),
+    ...createSets("臀筋ストレッチ：30秒/側", 30, 0, 2, "none"),
+    { name: "胸椎回旋ストレッチ：10回/側 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] }
 ];
 
 let MENUS = {};
@@ -249,22 +425,11 @@ let selectedMenuKey = "";
 let directionTimerId = null;
 let clearArrowTimerId = null;
 
-// 【角度設定】各方向に対応する回転角度（deg）を定義
-const ANGLES = [
-    0,     // 上 (↑)
-    180,   // 下 (↓)
-    270,   // 左 (←)
-    90,    // 右 (→)
-    45,    // 右上 (↗)
-    315,   // 左上 (↖)
-    135,   // 右下 (↘)
-    225    // 左下 (↙)
-];
-
 let audioCtx = null;
 let wakeLock = null; 
 
 window.addEventListener('DOMContentLoaded', () => {
+    loadArrowSettings();
     loadMenus();
     refreshMainScreenSelect();
     
@@ -280,11 +445,26 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// 矢印グローバル設定の読み込み
+function loadArrowSettings() {
+    const saved = localStorage.getItem("global_arrow_speeds");
+    if (saved) {
+        GLOBAL_ARROW_SETTINGS = JSON.parse(saved);
+    } else {
+        GLOBAL_ARROW_SETTINGS = JSON.parse(JSON.stringify(INITIAL_ARROW_SETTINGS));
+        localStorage.setItem("global_arrow_speeds", JSON.stringify(GLOBAL_ARROW_SETTINGS));
+    }
+}
+
+// メニューデータの読み込み（ベースメニューは常に最新化しつつ、CUSTOM_メニューのみ保持）
 function loadMenus() {
     const saved = localStorage.getItem("custom_habit_menus");
+    
     if (saved) {
+        // 過去に保存されたデータがある場合は、既存メニューの編集分も含めてすべてそのまま読み込む
         MENUS = JSON.parse(saved);
     } else {
+        // 初めての起動、またはリセットボタンを押した後はデフォルトを読み込む
         MENUS = JSON.parse(JSON.stringify(DEFAULT_MENUS));
         saveMenusToStorage();
     }
@@ -304,43 +484,48 @@ function refreshMainScreenSelect() {
     }
 }
 
+// 【新機能】すべての設定をデフォルトに戻す（Yes/No確認ダイアログ付き）
+function resetAllToDefault() {
+    // 1度目の確認
+    const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定を工場出荷時のデフォルト状態に戻しますか？");
+    if (!firstCheck) return; // Noなら終了
+
+    // 2度目の最終確認
+    const secondCheck = confirm("本当に戻してもよろしいですか？（この操作は取り消せません）");
+    if (!secondCheck) return; // Noなら終了
+
+    // LocalStorageのデータをクリア
+    localStorage.removeItem("custom_habit_menus");
+    localStorage.removeItem("global_arrow_speeds");
+    
+    alert("🔄 すべての設定をデフォルト状態にリセットしました！");
+    // ページを再読み込みして最新コードの状態を適用
+    location.reload();
+}
+
 async function requestWakeLock() {
     try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-        }
-    } catch (err) {
-        console.log(`Wake Lock Error: ${err.name}, ${err.message}`);
-    }
+        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    } catch (err) { console.log(err); }
 }
 
 function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release();
-        wakeLock = null;
-    }
+    if (wakeLock !== null) { wakeLock.release(); wakeLock = null; }
 }
 
 function resumeAudioContext() {
-    if (audioCtx) {
-        if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
-            audioCtx.resume().then(() => {
-                console.log("AudioContext successfully resumed.");
-            }).catch(e => console.log(e));
-        }
+    if (audioCtx && (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted')) {
+        audioCtx.resume().catch(e => console.log(e));
     }
 }
 
-// 【オシレーター変更】sineに変更
 function playTone(freq, duration) {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         resumeAudioContext(); 
-        
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        
-        osc.type = 'sine'; // squareからsine(正弦波)へ変更、柔らかな音色に
+        osc.type = 'sine'; 
         osc.frequency.value = freq;
         gain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
@@ -352,26 +537,119 @@ function playTone(freq, duration) {
 function changeScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
-    if (screenId !== 'screen-timer') {
-        releaseWakeLock();
-    }
+    if (screenId !== 'screen-timer') releaseWakeLock();
 }
 
 function buildMainTimelineItems(itemsArray) {
     let timeline = [];
     itemsArray.forEach(item => {
+        let autoCount = !!item.c || item.name.includes("回");
+        let arrowType = item.arrowType || "none";
+        let fixedDelay = item.fixedDelay || 0;
+        let enabledDirs = item.enabledDirs || [45, 90, 135, 225, 270, 315];
+
         for (let i = 1; i <= item.s; i++) {
-            if (item.c) {
-                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "count", duration: 0, isRandom: !!item.rand });
+            if (autoCount) {
+                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "count", duration: 0, arrowType, fixedDelay, enabledDirs });
             } else {
-                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "work", duration: item.w, isRandom: !!item.rand });
+                timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "work", duration: item.w, arrowType, fixedDelay, enabledDirs });
             }
             if (item.r > 0) {
-                timeline.push({ name: `${item.name} (休憩) [${i}/${item.s}]`, type: "rest", duration: item.r, isRandom: false });
+                timeline.push({ name: `${item.name} (休憩) [${i}/${item.s}]`, type: "rest", duration: item.r, arrowType: "none", fixedDelay: 0, enabledDirs: [] });
             }
         }
     });
     return timeline;
+}
+
+// --- 🏹 矢印グローバル設定画面の処理 ---
+function openArrowSettingsScreen() {
+    const container = document.getElementById("arrow-settings-container");
+    container.innerHTML = "";
+
+    // 1. フットワークセクション
+    let fwHtml = `<div class="settings-section"><div class="settings-title">🏃‍♂️ フットワーク表示間隔</div>`;
+    DIRECTION_MAP.forEach(d => {
+        const val = GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] : 2.0;
+        fwHtml += `
+            <div class="settings-dir-row">
+                <label>${d.name}方向 (秒)</label>
+                <input type="number" step="0.1" min="0.1" class="fw-base" data-angle="${d.angle}" value="${val}">
+            </div>`;
+    });
+    fwHtml += `
+        <div class="settings-dir-row" style="margin-top:10px; border-top:1px dashed #475569; padding-top:8px;">
+            <label>ランダム最小遅延 (秒)</label>
+            <input type="number" step="0.1" min="0" id="fw-delay-min" value="${GLOBAL_ARROW_SETTINGS.footwork.delayMin}">
+        </div>
+        <div class="settings-dir-row">
+            <label>ランダム最大遅延 (秒)</label>
+            <input type="number" step="0.1" min="0" id="fw-delay-max" value="${GLOBAL_ARROW_SETTINGS.footwork.delayMax}">
+        </div>
+    </div>`;
+
+    // 2. ステップセクション
+    let stHtml = `<div class="settings-section"><div class="settings-title">👟 ステップ表示間隔</div>`;
+    DIRECTION_MAP.forEach(d => {
+        const val = GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] : 1.0;
+        stHtml += `
+            <div class="settings-dir-row">
+                <label>${d.name}方向 (秒)</label>
+                <input type="number" step="0.1" min="0.1" class="st-base" data-angle="${d.angle}" value="${val}">
+            </div>`;
+    });
+    stHtml += `
+        <div class="settings-dir-row" style="margin-top:10px; border-top:1px dashed #475569; padding-top:8px;">
+            <label>ランダム最小遅延 (秒)</label>
+            <input type="number" step="0.1" min="0" id="st-delay-min" value="${GLOBAL_ARROW_SETTINGS.step.delayMin}">
+        </div>
+        <div class="settings-dir-row">
+            <label>ランダム最大遅延 (秒)</label>
+            <input type="number" step="0.1" min="0" id="st-delay-max" value="${GLOBAL_ARROW_SETTINGS.step.delayMax}">
+        </div>
+    </div>`;
+
+    // 3. ランダムセクション
+    let rdHtml = `
+    <div class="settings-section">
+        <div class="settings-title">🎲 ランダム表示レンジ</div>
+        <div class="settings-dir-row">
+            <label>最小表示間隔 (秒)</label>
+            <input type="number" step="0.1" min="0.1" id="rd-delay-min" value="${GLOBAL_ARROW_SETTINGS.random.delayMin}">
+        </div>
+        <div class="settings-dir-row">
+            <label>最大表示間隔 (秒)</label>
+            <input type="number" step="0.1" min="0.1" id="rd-delay-max" value="${GLOBAL_ARROW_SETTINGS.random.delayMax}">
+        </div>
+    </div>`;
+
+    container.innerHTML = fwHtml + stHtml + rdHtml;
+    changeScreen('screen-arrow-settings');
+}
+
+function saveArrowSettings() {
+    let fwTimes = {};
+    document.querySelectorAll(".fw-base").forEach(el => {
+        fwTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 2.0;
+    });
+    GLOBAL_ARROW_SETTINGS.footwork.baseTimes = fwTimes;
+    GLOBAL_ARROW_SETTINGS.footwork.delayMin = parseFloat(document.getElementById("fw-delay-min").value) || 0;
+    GLOBAL_ARROW_SETTINGS.footwork.delayMax = parseFloat(document.getElementById("fw-delay-max").value) || 0;
+
+    let stTimes = {};
+    document.querySelectorAll(".st-base").forEach(el => {
+        stTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 1.0;
+    });
+    GLOBAL_ARROW_SETTINGS.step.baseTimes = stTimes;
+    GLOBAL_ARROW_SETTINGS.step.delayMin = parseFloat(document.getElementById("st-delay-min").value) || 0;
+    GLOBAL_ARROW_SETTINGS.step.delayMax = parseFloat(document.getElementById("st-delay-max").value) || 0;
+
+    GLOBAL_ARROW_SETTINGS.random.delayMin = parseFloat(document.getElementById("rd-delay-min").value) || 1.0;
+    GLOBAL_ARROW_SETTINGS.random.delayMax = parseFloat(document.getElementById("rd-delay-max").value) || 3.0;
+
+    localStorage.setItem("global_arrow_speeds", JSON.stringify(GLOBAL_ARROW_SETTINGS));
+    alert("🏹 矢印表示設定のマスターデータを保存しました！");
+    changeScreen('screen-start');
 }
 
 // --- メニュー編集画面１ ---
@@ -384,7 +662,7 @@ function createNewMenu() {
     const titleInput = document.getElementById("new-menu-title").value.trim();
     if (!titleInput) { alert("新規メニュー名を入力してください。"); return; }
     const newKey = "CUSTOM_" + Date.now();
-    MENUS[newKey] = { title: titleInput, items: [{ name: "最初の種目", w: 15, r: 30, s: 3, rand: false, c: false }] };
+    MENUS[newKey] = { title: titleInput, items: [{ name: "最初の種目", w: 15, r: 30, s: 3, arrowType: "none", c: false, fixedDelay: 0, enabledDirs: [45, 90, 135, 225, 270, 315] }] };
     saveMenusToStorage();
     document.getElementById("new-menu-title").value = "";
     openEditScreen2(newKey);
@@ -452,13 +730,37 @@ function openEditScreen2(key) {
     updateSortButtons();
 }
 
-function addNewItemRow(item = {name:"", w:15, r:30, s:3, rand:false, c:false}) {
+function addNewItemRow(item = null) {
+    if (!item) {
+        item = { name: "", w: 15, r: 30, s: 3, arrowType: "none", c: false, fixedDelay: 0, enabledDirs: [45, 90, 135, 225, 270, 315] };
+    }
     const container = document.getElementById("edit-items-container");
     const card = document.createElement("div");
     card.className = "edit-item-card";
+    
+    let directionsHtml = "";
+    const displayOrder = [
+        { name: "左上", angle: 315 }, { name: "前(上)", angle: 0 }, { name: "右上", angle: 45 },
+        { name: "左", angle: 270 },   { name: "中心", angle: -1 }, { name: "右", angle: 90 },
+        { name: "左下", angle: 225 }, { name: "後(下)", angle: 180 }, { name: "右下", angle: 135 }
+    ];
+
+    displayOrder.forEach(d => {
+        if (d.angle === -1) {
+            directionsHtml += `<div style="font-size:11px; color:var(--text-sub); display:flex; align-items:center; justify-content:center;">(ベース)</div>`;
+        } else {
+            const isChecked = item.enabledDirs && item.enabledDirs.includes(d.angle) ? "checked" : "";
+            directionsHtml += `
+                <div class="direction-chip">
+                    <input type="checkbox" class="dir-chk" data-angle="${d.angle}" ${isChecked}>
+                    <span>${d.name}</span>
+                </div>`;
+        }
+    });
+
     card.innerHTML = `
         <label>種目名</label>
-        <input type="text" class="item-name" value="${item.name}" placeholder="例：ラインホップ前後">
+        <input type="text" class="item-name" value="${item.name}" placeholder="例：ランダム方向反応ステップ" oninput="handleItemNameInput(this)">
         <div class="edit-item-grid">
             <div><label>運動(秒)</label><input type="number" class="item-w" value="${item.w}" min="0"></div>
             <div><label>休憩(秒)</label><input type="number" class="item-r" value="${item.r}" min="0"></div>
@@ -466,19 +768,64 @@ function addNewItemRow(item = {name:"", w:15, r:30, s:3, rand:false, c:false}) {
         <div class="edit-item-grid">
             <div><label>セット数</label><input type="number" class="item-s" value="${item.s}" min="1"></div>
             <div style="display:flex; flex-direction:column; justify-content:center; padding-left:10px;">
-                <label class="checkbox-label"><input type="checkbox" class="item-rand" ${item.rand ? 'checked' : ''}> 矢印表示</label>
                 <label class="checkbox-label"><input type="checkbox" class="item-c" ${item.c ? 'checked' : ''}> DONEボタン化</label>
             </div>
         </div>
+        
+        <div style="margin-top:10px;">
+            <label>🏹 矢印表示方法</label>
+            <select class="item-arrow-type" onchange="toggleArrowDetailBox(this)">
+                <option value="none" ${item.arrowType === "none" ? "selected" : ""}>なし（指示不要）</option>
+                <option value="footwork" ${item.arrowType === "footwork" ? "selected" : ""}>フットワーク</option>
+                <option value="step" ${item.arrowType === "step" ? "selected" : ""}>ステップ</option>
+                <option value="random" ${item.arrowType === "random" ? "selected" : ""}>ランダム</option>
+            </select>
+            
+            <div class="arrow-detail-box" style="display: ${item.arrowType !== "none" ? "block" : "none"};">
+                <div class="edit-item-grid" style="margin-top:0; margin-bottom:8px;">
+                    <div>
+                        <label style="font-size:12px; color:var(--primary);">固定ディレイ(秒)</label>
+                        <input type="number" class="item-fixed-delay" value="${item.fixedDelay || 0}" step="0.1" min="0">
+                    </div>
+                    <div></div>
+                </div>
+                <label style="font-size:12px; color:var(--primary);">有効にする矢印の方向</label>
+                <div class="directions-grid">${directionsHtml}</div>
+            </div>
+        </div>
+
         <div class="edit-card-actions">
             <button class="btn-secondary btn-action-small btn-move-up" onclick="moveCardUp(this)">🔼 上へ</button>
             <button class="btn-secondary btn-action-small btn-move-down" onclick="moveCardDown(this)">🔽 下へ</button>
-            <button class="btn-danger btn-action-small" onclick="this.parentElement.parentElement.remove(); updateSortButtons();">❌ この種目を削除</button>
+            <button class="btn-danger btn-action-small" onclick="this.parentElement.parentElement.remove(); updateSortButtons();">❌ 削除</button>
         </div>
     `;
     container.appendChild(card);
     updateSortButtons();
     card.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function handleItemNameInput(inputElement) {
+    const card = inputElement.parentElement;
+    const name = inputElement.value;
+    const doneChk = card.querySelector(".item-c");
+    if (name.includes("回")) {
+        doneChk.checked = true;
+    }
+    
+    const arrowSelect = card.querySelector(".item-arrow-type");
+    const auto = detectDefaultArrowSettings(name);
+    arrowSelect.value = auto.arrowType;
+    toggleArrowDetailBox(arrowSelect);
+}
+
+function toggleArrowDetailBox(selectElement) {
+    const box = selectElement.parentElement.querySelector(".arrow-detail-box");
+    if (selectElement.value === "none") {
+        box.style.display = "none";
+    } else {
+        box.style.display = "block";
+    }
 }
 
 function moveCardUp(button) {
@@ -513,10 +860,17 @@ function saveEditedMenu() {
         const w = parseInt(card.querySelector(".item-w").value) || 0;
         const r = parseInt(card.querySelector(".item-r").value) || 0;
         const s = parseInt(card.querySelector(".item-s").value) || 1;
-        const rand = card.querySelector(".item-rand").checked;
         const c = card.querySelector(".item-c").checked;
+        const arrowType = card.querySelector(".item-arrow-type").value;
+        const fixedDelay = parseFloat(card.querySelector(".item-fixed-delay").value) || 0;
+        
+        let enabledDirs = [];
+        card.querySelectorAll(".dir-chk:checked").forEach(chk => {
+            enabledDirs.push(parseInt(chk.getAttribute("data-angle")));
+        });
+
         if (!name) { alert("種目名が空のカードがあります。"); return; }
-        items.push({ name, w, r, s, rand, c });
+        items.push({ name, w, r, s, c, arrowType, fixedDelay, enabledDirs });
     }
     if (items.length === 0) { alert("最低でも１つの種目を追加してください。"); return; }
     MENUS[temporaryEditKey] = { title, items };
@@ -573,7 +927,6 @@ function jumpToPhase(index) {
 function runPhase() {
     clearInterval(timerId); clearTimeout(directionTimerId); clearTimeout(clearArrowTimerId);
     
-    // 矢印要素を非表示にしてリセット
     const arrowEl = document.getElementById("custom-arrow-element");
     arrowEl.classList.remove("active");
     arrowEl.style.transform = "rotate(0deg)";
@@ -594,11 +947,11 @@ function runPhase() {
 
     playTone(880, 0.15); setTimeout(() => playTone(880, 0.15), 180);
 
-    if ((phase.type === "count" || phase.name.includes("回")) && !phase.name.includes("休憩")) {
+    if (phase.type === "count" || phase.name.includes("回")) {
         document.getElementById("time-left").style.display = "none";
         document.getElementById("btn-done").style.display = "block";
         document.getElementById("btn-pause").style.display = "none";
-        if (phase.isRandom) triggerRandomDirection();
+        if (phase.arrowType && phase.arrowType !== "none") triggerNextArrowInterval(true);
     } else {
         document.getElementById("time-left").style.display = "block";
         document.getElementById("btn-done").style.display = "none";
@@ -607,7 +960,7 @@ function runPhase() {
         timeLeft = phase.duration;
         updateTimerDisplay();
 
-        if (phase.isRandom) triggerRandomDirection();
+        if (phase.arrowType && phase.arrowType !== "none") triggerNextArrowInterval(true);
 
         timerId = setInterval(() => {
             if (isPaused) return;
@@ -638,33 +991,44 @@ function interruptTraining() {
     }
 }
 
-// 【ランダム矢印制御】自作CSSの角度を変更して表示
-function triggerRandomDirection() {
-    if (isPaused) { directionTimerId = setTimeout(triggerRandomDirection, 1000); return; }
+function triggerNextArrowInterval(isFirstTrigger = false) {
+    if (isPaused) { 
+        directionTimerId = setTimeout(() => triggerNextArrowInterval(false), 500); 
+        return; 
+    }
     
     const phase = currentTimeline[currentIdx];
-    const phaseName = phase ? phase.name : "";
+    if (!phase || !phase.arrowType || phase.arrowType === "none" || !phase.enabledDirs || phase.enabledDirs.length === 0) return;
 
-    const arrowEl = document.getElementById("custom-arrow-element");
+    if (isFirstTrigger && phase.fixedDelay > 0) {
+        directionTimerId = setTimeout(() => triggerNextArrowInterval(false), phase.fixedDelay * 1000);
+        return;
+    }
+
+    const targetAngle = phase.enabledDirs[Math.floor(Math.random() * phase.enabledDirs.length)];
     
-    // ランダムに角度を選択して回転させ、表示クラスを付与
-    const randomAngle = ANGLES[Math.floor(Math.random() * ANGLES.length)];
-    arrowEl.style.transform = `rotate(${randomAngle}deg)`;
+    const arrowEl = document.getElementById("custom-arrow-element");
+    arrowEl.style.transform = `rotate(${targetAngle}deg)`;
     arrowEl.classList.add("active");
-
     playTone(660, 0.05);
     
-    // 1秒後に一旦非表示（パッと消える効果）
     clearTimeout(clearArrowTimerId);
-    clearArrowTimerId = setTimeout(() => {
-        arrowEl.classList.remove("active");
-    }, 1000);
-    
-    let nextIntervalSec = 2 + Math.random() * 2; 
-    if (phaseName.includes("ステップ")) { nextIntervalSec = 1 + Math.random() * 2; }
-    else if (phaseName.includes("フットワーク")) { nextIntervalSec = 2 + Math.random() * 2; }
+    clearArrowTimerId = setTimeout(() => { arrowEl.classList.remove("active"); }, 1000);
 
-    directionTimerId = setTimeout(triggerRandomDirection, nextIntervalSec * 1000);
+    let nextIntervalSec = 2.0; 
+    const settings = GLOBAL_ARROW_SETTINGS[phase.arrowType] || INITIAL_ARROW_SETTINGS[phase.arrowType];
+
+    if (phase.arrowType === "footwork" || phase.arrowType === "step") {
+        nextIntervalSec = settings.baseTimes[targetAngle] !== undefined ? settings.baseTimes[targetAngle] : 2.0;
+        if (settings.delayMax > settings.delayMin) {
+            const randDelay = settings.delayMin + Math.random() * (settings.delayMax - settings.delayMin);
+            nextIntervalSec += randDelay;
+        }
+    } else if (phase.arrowType === "random") {
+        nextIntervalSec = settings.delayMin + Math.random() * (settings.delayMax - settings.delayMin);
+    }
+
+    directionTimerId = setTimeout(() => triggerNextArrowInterval(false), nextIntervalSec * 1000);
 }
 
 // カレンダー・ログ
