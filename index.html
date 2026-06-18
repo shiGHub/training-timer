@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Timer - DotStyle Pro</title>
+    <title>Training Timer - Pro</title>
     <style>
         :root {
             --bg-color: #0f172a; 
@@ -20,190 +20,227 @@
         body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 480px; background: var(--card-bg); padding: 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         
-        h1, h2, h3 { text-align: center; margin-bottom: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        h1, h2, h3 { text-align: center; margin-bottom: 20px; color: var(--text-main); }
+        h1 { font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        p { color: var(--text-sub); font-size: 14px; margin-bottom: 20px; text-align: center; line-height: 1.5; }
+
         .screen { display: none; }
         .screen.active { display: block; }
-        
-        /* ボタンデザイン */
-        button { width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); }
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%; padding: 12px; background: #0f172a; border: 2px solid #334155; border-radius: 12px;
+            color: var(--text-main); font-size: 16px; margin-bottom: 16px; outline: none; transition: border-color 0.2s;
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%; padding: 14px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px;
+        }
+        button:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary); color: #0f172a; }
         .btn-secondary { background: #334155; color: var(--text-main); }
+        .btn-warning { background: var(--warning); color: #0f172a; }
         .btn-success { background: var(--success); color: #0f172a; }
         .btn-danger { background: var(--danger); color: #0f172a; }
-        .btn-warning { background: var(--warning); color: #0f172a; }
-        button:active { transform: scale(0.98); opacity: 0.9; }
 
-        /* ナビゲーションボタン */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
-        .btn-nav { padding: 10px; font-size: 14px; background: #334155; color: var(--text-sub); border-radius: 10px; margin: 0; }
-        .btn-nav:hover { color: var(--text-main); background: #475569; }
-
-        /* 入力フォーム・セレクトボックス */
-        select, input[type="text"], input[type="number"] { width: 100%; padding: 14px; font-size: 16px; border-radius: 14px; border: 2px solid #334155; margin-bottom: 15px; background: #0f172a; color: var(--text-main); }
-        label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-sub); font-weight: 600; }
-
-        /* タイマー・表示エリア */
-        .timer-display { text-align: center; margin: 15px 0; }
-        .phase-title { font-size: 22px; font-weight: 700; color: var(--text-main); min-height: 70px; display: flex; align-items: center; justify-content: center; padding: 0 10px; line-height: 1.4; }
-        .next-phase { font-size: 14px; color: var(--text-sub); margin-top: 8px; min-height: 20px; text-align: center; }
-        
-        /* メインボックス切り替え */
-        .display-main-box { height: 130px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
-        .time-left { font-size: 96px; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: var(--primary); line-height: 1; }
-        .btn-done-action { background: var(--success); color: #0f172a; font-size: 28px; font-weight: 800; border-radius: 20px; height: 100px; width: 80%; box-shadow: 0 8px 20px rgba(74, 222, 128, 0.3); margin: 0 auto; }
-        
-        /* 矢印エリア */
-        .direction-box { height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; min-height: 160px; background: transparent; }
-        .custom-arrow {
-            width: 130px;
-            height: 130px;
-            background-color: var(--primary);
-            clip-path: polygon(50% 0%, 100% 45%, 70% 45%, 70% 100%, 30% 100%, 30% 45%, 0% 45%);
-            transition: transform 0.1s ease-out;
-            display: none; 
-        }
-        .custom-arrow.active { display: block; }
-        
-        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        /* 編集用のカードスタイル */
-        .edit-item-card, .menu-manage-card { background: #0f172a; padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid #334155; position: relative; }
-        .edit-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-        .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer; margin-top: 4px; }
-        .checkbox-label input { width: 16px; height: 16px; }
-        
-        /* 矢印詳細用スタイル */
-        .arrow-detail-box { background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 8px; border: 1px dashed #475569; display: none; }
-        .directions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; text-align: center; }
-        .direction-chip { background: #0f172a; padding: 6px; border-radius: 6px; font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #334155; }
-        .direction-chip input { margin-bottom: 4px; width: 14px; height: 14px; }
-
-        /* グローバル設定画面用のレイアウト */
-        .settings-section { background: #1e293b; padding: 14px; border-radius: 14px; margin-bottom: 16px; border: 1px solid #334155; }
-        .settings-title { color: var(--primary); font-size: 15px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
-        .settings-dir-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; align-items: center; }
-        .settings-dir-row label { margin-bottom: 0; font-size: 13px; }
-        .settings-dir-row input { margin-bottom: 0; padding: 6px; font-size: 13px; text-align: center; border-radius: 8px; }
-
-        .edit-card-actions { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; margin-top: 12px; }
-        .btn-action-small { padding: 8px; margin: 0; font-size: 12px; border-radius: 8px; }
-
-        .menu-manage-card { display: flex; flex-direction: column; justify-content: space-between; }
-        .menu-title-text { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--text-main); word-break: break-all; }
+        /* 進行画面用 */
+        .phase-box { background: #0f172a; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 16px; border: 1px solid #334155; }
+        .phase-title { font-size: 14px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .phase-name { font-size: 22px; font-weight: 700; color: var(--text-main); word-break: break-all; }
+        .timer-display { font-size: 72px; font-weight: 800; text-align: center; margin: 10px 0; font-family: monospace; color: var(--primary); }
+        .next-box { text-align: center; font-size: 14px; color: var(--text-sub); margin-bottom: 20px; background: #1e293b; padding: 8px; border-radius: 8px; }
 
         /* カレンダー */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
-        .day-name { font-weight: 600; color: var(--text-sub); font-size: 12px; padding-bottom: 8px; }
-        
-        .day-cell { aspect-ratio: 1; border-radius: 50%; background: var(--dot-empty); font-size: 11px; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
-        .day-cell.empty { background: transparent; cursor: default; }
-        .day-cell:not(.empty):hover { border-color: var(--primary); }
-        
-        .day-cell.completed { background: var(--success) !important; color: #0f172a !important; font-weight: bold; }
-        .day-cell.interrupted { background: var(--warning) !important; color: #0f172a !important; font-weight: bold; }
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px; }
+        .day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-sub); padding-bottom: 4px; }
+        .day-cell { background: #0f172a; aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #334155; position: relative; }
+        .day-cell.empty { background: transparent; border: none; cursor: default; }
+        .day-cell.completed { background: #065f46; border-color: var(--success); color: #a7f3d0; }
+        .day-cell.interrupted { background: #78350f; border-color: var(--warning); color: #fde68a; }
+        .log-details { background: #0f172a; border-radius: 12px; padding: 12px; font-size: 13px; color: var(--text-sub); border: 1px solid #334155; margin-bottom: 16px; min-height: 50px; line-height: 1.4; }
 
-        .log-details { margin-top: 24px; padding: 16px; background: #0f172a; border-radius: 14px; font-size: 14px; min-height: 70px; border: 1px solid #334155; color: var(--text-sub); }
-        .log-details strong { color: var(--text-main); }
+        /* 管理・編集画面用 */
+        .menu-manage-card, .edit-item-card { background: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+        .menu-title-text { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
+        .edit-card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+        .btn-action-small { padding: 8px; font-size: 12px; border-radius: 8px; margin-bottom: 0; }
+        .edit-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-main); cursor: pointer; user-select: none; }
+        .checkbox-label input { width: 18px; height: 18px; cursor: pointer; }
 
-        .jump-select-container { margin-bottom: 10px; }
-        .jump-select-container label { font-size: 12px; margin-bottom: 3px; color: var(--primary); }
-        select.jump-select { padding: 8px 12px; font-size: 14px; margin-bottom: 0; background: #1e293b; border-color: #475569; }
-        
-        /* 区切り線とリセットボタン用の装飾 */
-        .danger-zone { margin-top: 24px; border-top: 1px solid #334155; padding-top: 14px; }
+        /* 🏹 矢印アニメーション・レイアウト */
+        .arrow-area-wrapper { display: flex; justify-content: center; align-items: center; margin: 15px 0; min-height: 120px; }
+        .arrow-box { width: 100px; height: 100px; background: #0f172a; border: 3px solid #334155; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; transition: all 0.1s ease; }
+        .arrow-svg { width: 60px; height: 60px; fill: var(--text-sub); opacity: 0.15; transition: all 0.1s ease; }
+        .arrow-box.active { border-color: var(--primary); background: #1e293b; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); }
+        .arrow-box.active .arrow-svg { fill: var(--primary); opacity: 1; transform: scale(1.1); }
+
+        .arrow-detail-box { background: #1e293b; border-radius: 12px; padding: 12px; margin-top: 10px; border: 1px solid #475569; }
+        .directions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; background: #0f172a; padding: 8px; border-radius: 8px; }
+        .direction-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1e293b; border: 1px solid #334155; padding: 4px; border-radius: 6px; font-size: 11px; color: var(--text-main); }
+        .direction-chip input { margin-bottom: 2px; width: 14px; height: 14px; }
+
+        /* 🏹 矢印グローバル設定用 */
+        .settings-section { background: #0f172a; border: 1px solid #334155; border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+        .settings-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #334155; padding-bottom: 4px; }
+        .settings-dir-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .settings-dir-row input { width: 80px; padding: 6px; margin-bottom: 0; font-size: 14px; border-radius: 6px; text-align: center; }
+
+        /* テストモード表示エリア */
+        .test-zone-box { background: #1e293b; border: 2px dashed var(--warning); border-radius: 16px; padding: 16px; margin-top: 16px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
+
     <div id="screen-start" class="screen active">
         <h1>Training Timer</h1>
-        <div style="margin-bottom: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">メニューを選んでスタート</div>
-        <select id="menu-select"><option value="">読み込み中...</option></select>
-        <button class="btn-primary" onclick="startTraining()">トレーニング開始</button>
-        <button class="btn-secondary" onclick="openArrowSettingsScreen()">🏹 矢印表示設定の編集</button>
-        <button class="btn-secondary" onclick="openEditScreen1()">⚙️ メニューの編集・作成</button>
-        <button class="btn-secondary" onclick="changeScreen('screen-record'); renderCalendar();">Record</button>
         
-        <div class="danger-zone">
-            <button class="btn-danger" style="background: #ef4444; color: #fff; padding: 12px;" onclick="resetAllToDefault()">⚠️ すべての設定をデフォルトに戻す</button>
-        </div>
-    </div>
+        <label>🏋️ メニューを選択</label>
+        <select id="menu-select"></select>
 
-    <div id="screen-arrow-settings" class="screen">
-        <h2>矢印表示のマスター設定</h2>
-        <div style="margin-bottom: 15px; text-align: center; color: var(--text-sub); font-size: 12px; line-height: 1.4;">
-            各タイプ別の表示間隔（秒）を変更できます。<br>個人スキルや体力に合わせて調整してください。
+        <button class="btn-success" onclick="startTraining()">▶️ トレーニングを開始</button>
+        <button class="btn-primary" onclick="openEditScreen1()">⚙️ メニューの編成・作成</button>
+        <button class="btn-warning" onclick="openArrowSettingsScreen()">🏹 矢印表示間隔の調整</button>
+        <button class="btn-secondary" onclick="changeScreen('screen-calendar'); renderCalendar();">📅 過去の実施ログ確認</button>
+        
+        <div style="margin-top: 24px; border-top: 2px dashed #334155; padding-top: 16px;">
+            <button class="btn-secondary btn-action-small" style="margin-bottom:8px;" onclick="openBackupScreen()">💾 設定のエクスポート / インポート</button>
+            <button class="btn-danger btn-action-small" onclick="resetAllToDefault()">🔄 設定を初期化</button>
         </div>
-        <div style="max-height: 400px; overflow-y: auto; padding-right: 4px;" id="arrow-settings-container">
-            </div>
-        <button class="btn-primary" onclick="saveArrowSettings()">💾 設定を保存</button>
-        <button class="btn-secondary" onclick="changeScreen('screen-start')">キャンセル</button>
-    </div>
-
-    <div id="screen-edit-1" class="screen">
-        <h2>メニューの編集・並び替え</h2>
-        <div style="margin-bottom: 20px; background: #0f172a; padding: 16px; border-radius: 14px; border: 1px solid #334155;">
-            <label for="new-menu-title" style="color: var(--primary);">✨ 新しいメニューを作成</label>
-            <input type="text" id="new-menu-title" placeholder="例：DAY8：瞬発ステップ特化" style="margin-bottom: 10px;">
-            <button class="btn-success" onclick="createNewMenu()" style="margin: 0; padding: 12px;">新規作成して中身を編集</button>
-        </div>
-        <label>既存メニューの一覧・並び替え</label>
-        <div style="max-height: 320px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="menu-list-container"></div>
-        <button class="btn-secondary" onclick="changeScreen('screen-start')">戻る</button>
-    </div>
-
-    <div id="screen-edit-2" class="screen">
-        <h2>メニュー中身の編集</h2>
-        <div style="margin-bottom: 15px;">
-            <label>メニュータイトル</label>
-            <input type="text" id="edit-current-menu-title">
-        </div>
-        <div style="max-height: 380px; overflow-y: auto; margin-bottom: 15px; padding-right: 4px;" id="edit-items-container"></div>
-        <button class="btn-success" onclick="addNewItemRow()">➕ 種目を追加</button>
-        <button class="btn-primary" onclick="saveEditedMenu()">💾 変更を保存</button>
-        <button id="btn-delete-menu" class="btn-danger" onclick="deleteMenu()">🗑️ このメニューを削除</button>
-        <button class="btn-secondary" onclick="changeScreen('screen-edit-1')">キャンセル</button>
     </div>
 
     <div id="screen-timer" class="screen">
-        <div class="jump-select-container">
-            <label for="timer-jump-select">🏃‍♂️ 現在の進行度（タップして種目を移動）</label>
-            <select id="timer-jump-select" class="jump-select" onchange="jumpToPhase(this.value)"></select>
+        <h2 id="timer-menu-title" style="font-size:16px; color:var(--text-sub); margin-bottom:10px;">TRAINING</h2>
+        
+        <div class="phase-box">
+            <div class="phase-title" id="phase-type-badge">PHASE</div>
+            <div class="phase-name" id="current-phase">-</div>
         </div>
-        <div class="nav-grid">
-            <button class="btn-nav" onclick="prevMenu()">◀ 前のメニュー</button>
-            <button class="btn-nav" onclick="nextMenu()">次のメニュー ▶</button>
-        </div>
-        <div class="timer-display">
-            <div id="current-phase" class="phase-title">ウォームアップ</div>
-            <div id="next-phase" class="next-phase">次: ---</div>
-            <div class="display-main-box">
-                <div id="time-left" class="time-left">00</div>
-                <button id="btn-done" class="btn-done-action" onclick="pressDone()">DONE</button>
-            </div>
-            <div class="direction-box">
-                <div id="custom-arrow-element" class="custom-arrow"></div>
+
+        <div class="arrow-area-wrapper">
+            <div class="arrow-box" id="custom-arrow-element">
+                <svg class="arrow-svg" viewBox="0 0 24 24">
+                    <path d="M12 2L4.5 11h5v11h5V11h5L12 2z"/>
+                </svg>
             </div>
         </div>
-        <div class="control-grid">
-            <button id="btn-pause" class="btn-warning" onclick="togglePause()">一時停止</button>
-            <button class="btn-danger" onclick="interruptTraining()">中断</button>
+
+        <div class="timer-display" id="time-left">0</div>
+        
+        <button class="btn-success" id="btn-done" style="display:none;" onclick="pressDone()">✅ 終わったらここをタップ(DONE)</button>
+        <div class="next-box" id="next-phase">次: -</div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <button class="btn-secondary" onclick="prevMenu()">⏮️ 前へ</button>
+            <button class="btn-secondary" onclick="nextMenu()">⏭️ スキップ</button>
         </div>
+        <button class="btn-warning" id="btn-pause" onclick="togglePause()">一時停止</button>
+        
+        <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+            <label style="margin-bottom:0; white-space:nowrap; font-size:12px;">直接ジャンプ:</label>
+            <select id="timer-jump-select" style="margin-bottom:0; padding:6px; font-size:13px;" onchange="jumpToPhase(this.value)"></select>
+        </div>
+        <button class="btn-danger" style="margin-top:16px;" onclick="interruptTraining()">⏹️ 終了してメインへ戻る</button>
     </div>
 
-    <div id="screen-record" class="screen">
-        <h2>Training Record</h2>
-        <div class="calendar-header">
-            <button style="width:auto; padding: 8px 16px;" class="btn-secondary" onclick="moveMonth(-1)">&lt;</button>
-            <span id="calendar-month-year" style="font-weight: bold; font-size: 18px; color: var(--text-main);"></span>
-            <button style="width:auto; padding: 8px 16px;" class="btn-secondary" onclick="moveMonth(1)">&gt;</button>
+    <div id="screen-calendar" class="screen">
+        <h2>📅 トレーニング実施ログ</h2>
+        <div class="calendar-nav">
+            <button class="btn-secondary btn-action-small" style="width:70px;" onclick="moveMonth(-1)">◀ 前月</button>
+            <h3 id="calendar-month-year" style="margin-bottom:0;">-</h3>
+            <button class="btn-secondary btn-action-small" style="width:70px;" onclick="moveMonth(1)">次月 ▶</button>
         </div>
-        <div id="calendar-grid" class="calendar-grid"></div>
-        <div id="log-details" class="log-details">タップした日付のトレーニングログがここに表示されます。</div>
-        <button class="btn-secondary" onclick="changeScreen('screen-start')" style="margin-top: 20px;">メニューに戻る</button>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="log-details" id="log-details">日付セルをタップすると詳細が表示されます。</div>
+        <button class="btn-secondary" onclick="changeScreen('screen-start')">🏠 メインに戻る</button>
     </div>
+
+    <div id="screen-edit-1" class="screen">
+        <h2>⚙️ メニューの管理・作成</h2>
+        <p>既存メニューの順序並び替えや編集、また新しいカスタムメニューを作成できます。</p>
+        
+        <div style="background:#1e293b; padding:12px; border-radius:14px; margin-bottom:16px; border:1px solid #334155;">
+            <label>➕ 新規メニューの作成</label>
+            <input type="text" id="new-menu-title" placeholder="例：DAY8：自主トレ強化セット">
+            <button class="btn-success" onclick="createNewMenu()">✨ 新規追加して編集へ</button>
+        </div>
+
+        <label>📋 登録中のメニューリスト</label>
+        <div id="menu-list-container"></div>
+        <button class="btn-secondary" onclick="changeScreen('screen-start')">🏠 メインに戻る</button>
+    </div>
+
+    <div id="screen-edit-2" class="screen">
+        <h2>📝 種目の詳細編集</h2>
+        <label>📋 メニュー名</label>
+        <input type="text" id="edit-current-menu-title">
+        
+        <div id="edit-items-container"></div>
+
+        <button class="btn-success" onclick="addNewItemRow()">➕ 種目を最後尾に追加</button>
+        <button class="btn-primary" style="margin-top:16px;" onclick="saveEditedMenu()">💾 変更を保存する</button>
+        <button class="btn-secondary" onclick="openEditScreen1()">🔙 キャンセルして戻る</button>
+        <button class="btn-danger" id="btn-delete-menu" style="margin-top:24px;" onclick="deleteMenu()">❌ このメニューを完全削除</button>
+    </div>
+
+    <div id="screen-arrow-settings" class="screen">
+        <h2>🏹 矢印表示間隔の調整</h2>
+        <p>「フットワーク」「ステップ」「ランダム」の各矢印モードにおける方向別の基準秒数や、ランダムな揺らぎ幅のレンジをミリ秒・秒単位でカスタマイズします。</p>
+        
+        <div id="arrow-settings-container"></div>
+
+        <div class="test-zone-box">
+            <h3 style="font-size:15px; color:var(--warning); margin-bottom:8px;">🎯 矢印表示テスト</h3>
+            <p style="font-size:11px; color:var(--text-sub); margin-bottom:12px;">現在の入力値をそのまま使用して、実際の秒数間隔や矢印の点滅をテスト動作できます。</p>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:12px;">テストするモード選択</label>
+                <select id="test-arrow-type" style="padding:8px; font-size:14px; margin-bottom:8px;">
+                    <option value="footwork">🏃‍♂️ フットワークモード</option>
+                    <option value="step">👟 ステップモード</option>
+                    <option value="random">🎲 ランダムモード</option>
+                </select>
+            </div>
+            
+            <div class="arrow-area-wrapper" style="min-height:90px; margin:5px 0;">
+                <div class="arrow-box" id="test-arrow-element" style="width:80px; height:80px;">
+                    <svg class="arrow-svg" viewBox="0 0 24 24" style="width:45px; height:45px;">
+                        <path d="M12 2L4.5 11h5v11h5V11h5L12 2z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button class="btn-success btn-action-small" id="btn-test-start" onclick="toggleArrowTest()">▶️ テスト開始</button>
+                <button class="btn-secondary btn-action-small" id="btn-test-stop" disabled onclick="stopArrowTest()">⏹️ 停止</button>
+            </div>
+        </div>
+
+        <button class="btn-primary" style="margin-top:20px;" onclick="saveArrowSettings()">💾 設定をマスターに保存</button>
+        <button class="btn-secondary" onclick="stopArrowTest(); changeScreen('screen-start');">🏠 保存せずメインに戻る</button>
+    </div>
+
+    <div id="screen-backup" class="screen">
+        <h2>💾 設定のエクスポート / インポート</h2>
+        <p>現在のカスタムメニューおよび矢印設定データをテキスト（JSON）としてバックアップ・復元できます。</p>
+        
+        <label>📤 バックアップデータの書き出し</label>
+        <textarea id="backup-text-output" rows="6" readonly onclick="this.select();" placeholder="ここをタップすると生成されたデータを選択できます"></textarea>
+        <button class="btn-primary btn-action-small" onclick="generateBackupJSON()">🔄 データを生成する</button>
+        
+        <div style="margin-top:20px; border-top:1px dashed #475569; padding-top:16px;">
+            <label>📥 データの取り込み（インポート）</label>
+            <textarea id="backup-text-input" rows="6" placeholder="エクスポートしたJSONテキストをここに貼り付けてください"></textarea>
+            <button class="btn-warning btn-action-small" onclick="importBackupJSON()">📥 データを復元する</button>
+        </div>
+        
+        <button class="btn-secondary" style="margin-top:20px;" onclick="changeScreen('screen-start')">🏠 メインに戻る</button>
+    </div>
+
 </div>
 
 <script>
@@ -414,6 +451,11 @@ let clearArrowTimerId = null;
 let audioCtx = null;
 let wakeLock = null; 
 
+// テスト用変数
+let testTimerId = null;
+let testClearTimerId = null;
+let isTestRunning = false;
+
 window.addEventListener('DOMContentLoaded', () => {
     loadArrowSettings();
     loadMenus();
@@ -431,7 +473,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 矢印グローバル設定の読み込み
 function loadArrowSettings() {
     const saved = localStorage.getItem("global_arrow_speeds");
     if (saved) {
@@ -442,7 +483,6 @@ function loadArrowSettings() {
     }
 }
 
-// メニューデータの読み込み（常にローカルストレージの編集データを100%信用）
 function loadMenus() {
     const saved = localStorage.getItem("custom_habit_menus");
     if (saved) {
@@ -467,9 +507,8 @@ function refreshMainScreenSelect() {
     }
 }
 
-// すべての設定をデフォルトに戻す
 function resetAllToDefault() {
-    const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定をデフォルト状態に戻しますか？");
+    const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定を工場出荷時のデフォルト状態に戻しますか？");
     if (!firstCheck) return;
 
     const secondCheck = confirm("本当に戻してもよろしいですか？（この操作は取り消せません）");
@@ -530,11 +569,13 @@ function buildMainTimelineItems(itemsArray) {
 
         for (let i = 1; i <= item.s; i++) {
             if (autoCount) {
+                // 種目の運動フェーズがDONEボタン化
                 timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "count", duration: 0, arrowType, fixedDelay, enabledDirs });
             } else {
                 timeline.push({ name: `${item.name} [${i}/${item.s}]`, type: "work", duration: item.w, arrowType, fixedDelay, enabledDirs });
             }
             if (item.r > 0) {
+                // 休憩はDONE化せず、常に通常のタイマー方式(rest)で秒数指定
                 timeline.push({ name: `${item.name} (休憩) [${i}/${item.s}]`, type: "rest", duration: item.r, arrowType: "none", fixedDelay: 0, enabledDirs: [] });
             }
         }
@@ -604,29 +645,117 @@ function openArrowSettingsScreen() {
     changeScreen('screen-arrow-settings');
 }
 
-function saveArrowSettings() {
-    let fwTimes = {};
+// 画面に入力された設定値を一時収集する共通ヘルパー
+function getTemporaryInputArrowSettings() {
+    let settings = {
+        footwork: { baseTimes: {}, delayMin: 0, delayMax: 0 },
+        step: { baseTimes: {}, delayMin: 0, delayMax: 0 },
+        random: { delayMin: 1.0, delayMax: 3.0 }
+    };
     document.querySelectorAll(".fw-base").forEach(el => {
-        fwTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 2.0;
+        settings.footwork.baseTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 2.0;
     });
-    GLOBAL_ARROW_SETTINGS.footwork.baseTimes = fwTimes;
-    GLOBAL_ARROW_SETTINGS.footwork.delayMin = parseFloat(document.getElementById("fw-delay-min").value) || 0;
-    GLOBAL_ARROW_SETTINGS.footwork.delayMax = parseFloat(document.getElementById("fw-delay-max").value) || 0;
+    const fwMin = document.getElementById("fw-delay-min");
+    const fwMax = document.getElementById("fw-delay-max");
+    if(fwMin) settings.footwork.delayMin = parseFloat(fwMin.value) || 0;
+    if(fwMax) settings.footwork.delayMax = parseFloat(fwMax.value) || 0;
 
-    let stTimes = {};
     document.querySelectorAll(".st-base").forEach(el => {
-        stTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 1.0;
+        settings.step.baseTimes[parseInt(el.getAttribute("data-angle"))] = parseFloat(el.value) || 1.0;
     });
-    GLOBAL_ARROW_SETTINGS.step.baseTimes = stTimes;
-    GLOBAL_ARROW_SETTINGS.step.delayMin = parseFloat(document.getElementById("st-delay-min").value) || 0;
-    GLOBAL_ARROW_SETTINGS.step.delayMax = parseFloat(document.getElementById("st-delay-max").value) || 0;
+    const stMin = document.getElementById("st-delay-min");
+    const stMax = document.getElementById("st-delay-max");
+    if(stMin) settings.step.delayMin = parseFloat(stMin.value) || 0;
+    if(stMax) settings.step.delayMax = parseFloat(stMax.value) || 0;
 
-    GLOBAL_ARROW_SETTINGS.random.delayMin = parseFloat(document.getElementById("rd-delay-min").value) || 1.0;
-    GLOBAL_ARROW_SETTINGS.random.delayMax = parseFloat(document.getElementById("rd-delay-max").value) || 3.0;
+    const rdMin = document.getElementById("rd-delay-min");
+    const rdMax = document.getElementById("rd-delay-max");
+    if(rdMin) settings.random.delayMin = parseFloat(rdMin.value) || 1.0;
+    if(rdMax) settings.random.delayMax = parseFloat(rdMax.value) || 3.0;
 
+    return settings;
+}
+
+function saveArrowSettings() {
+    GLOBAL_ARROW_SETTINGS = getTemporaryInputArrowSettings();
     localStorage.setItem("global_arrow_speeds", JSON.stringify(GLOBAL_ARROW_SETTINGS));
     alert("🏹 矢印表示設定のマスターデータを保存しました！");
     changeScreen('screen-start');
+}
+
+// 🏹 矢印表示設定画面：テストモード実装
+function toggleArrowTest() {
+    if (isTestRunning) {
+        stopArrowTest();
+    } else {
+        startArrowTest();
+    }
+}
+
+function startArrowTest() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    resumeAudioContext();
+
+    isTestRunning = true;
+    document.getElementById("btn-test-start").textContent = "⏸️ テスト停止";
+    document.getElementById("btn-test-start").className = "btn-warning btn-action-small";
+    document.getElementById("btn-test-stop").disabled = false;
+
+    runArrowTestLoop(true);
+}
+
+function stopArrowTest() {
+    isTestRunning = false;
+    clearTimeout(testTimerId);
+    clearTimeout(testClearTimerId);
+    
+    const arrowEl = document.getElementById("test-arrow-element");
+    if (arrowEl) {
+        arrowEl.classList.remove("active");
+        arrowEl.style.transform = "rotate(0deg)";
+    }
+    
+    const startBtn = document.getElementById("btn-test-start");
+    if (startBtn) {
+        startBtn.textContent = "▶️ テスト開始";
+        startBtn.className = "btn-success btn-action-small";
+    }
+    const stopBtn = document.getElementById("btn-test-stop");
+    if (stopBtn) stopBtn.disabled = true;
+}
+
+function runArrowTestLoop(isFirst = false) {
+    if (!isTestRunning) return;
+
+    const mode = document.getElementById("test-arrow-type").value;
+    const currentInputSettings = getTemporaryInputArrowSettings();
+    
+    // 全方向を有効ターゲットとする（テスト仕様）
+    const targetDirs = [0, 45, 90, 135, 180, 225, 270, 315];
+    const targetAngle = targetDirs[Math.floor(Math.random() * targetDirs.length)];
+
+    const arrowEl = document.getElementById("test-arrow-element");
+    arrowEl.style.transform = `rotate(${targetAngle}deg)`;
+    arrowEl.classList.add("active");
+    playTone(660, 0.05);
+
+    clearTimeout(testClearTimerId);
+    testClearTimerId = setTimeout(() => { arrowEl.classList.remove("active"); }, 800);
+
+    let nextIntervalSec = 2.0;
+    const settings = currentInputSettings[mode];
+
+    if (mode === "footwork" || mode === "step") {
+        nextIntervalSec = settings.baseTimes[targetAngle] !== undefined ? settings.baseTimes[targetAngle] : 2.0;
+        if (settings.delayMax > settings.delayMin) {
+            const randDelay = settings.delayMin + Math.random() * (settings.delayMax - settings.delayMin);
+            nextIntervalSec += randDelay;
+        }
+    } else if (mode === "random") {
+        nextIntervalSec = settings.delayMin + Math.random() * (settings.delayMax - settings.delayMin);
+    }
+
+    testTimerId = setTimeout(() => { runArrowTestLoop(false); }, nextIntervalSec * 1000);
 }
 
 // --- メニュー編集画面１ ---
@@ -782,7 +911,6 @@ function addNewItemRow(item = null) {
     card.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
-// 【変更点】種目名から「回」が含まれる場合のDONEボタンの自動判別のみ残し、矢印タイプの自動判別コードを完全に削除
 function handleItemNameInput(inputElement) {
     const card = inputElement.parentElement;
     const name = inputElement.value;
@@ -918,9 +1046,15 @@ function runPhase() {
     document.getElementById("current-phase").textContent = phase.name;
     document.getElementById("next-phase").textContent = (currentIdx + 1 < currentTimeline.length) ? "次: " + currentTimeline[currentIdx + 1].name : "次: 終了";
 
+    const badge = document.getElementById("phase-type-badge");
+    if(phase.type === "work") { badge.textContent = "WORK (運動)"; badge.style.color = "var(--primary)"; }
+    else if(phase.type === "rest") { badge.textContent = "REST (休憩)"; badge.style.color = "var(--warning)"; }
+    else { badge.textContent = "COUNT (回数カウント)"; badge.style.color = "var(--success)"; }
+
     playTone(880, 0.15); setTimeout(() => playTone(880, 0.15), 180);
 
-    if (phase.type === "count" || phase.name.includes("回")) {
+    // 【修正点】typeが「count」の場合のみDONEボタンを出す。休憩(rest)は通常カウントダウンタイマーにする
+    if (phase.type === "count") {
         document.getElementById("time-left").style.display = "none";
         document.getElementById("btn-done").style.display = "block";
         document.getElementById("btn-pause").style.display = "none";
@@ -1054,6 +1188,49 @@ function renderCalendar() {
             }
         };
         grid.appendChild(cell);
+    }
+}
+
+// --- 💾 データバックアップ機能（エクスポート / インポート） ---
+function openBackupScreen() {
+    document.getElementById("backup-text-output").value = "";
+    document.getElementById("backup-text-input").value = "";
+    changeScreen('screen-backup');
+}
+
+function generateBackupJSON() {
+    const backupObj = {
+        menus: MENUS,
+        arrowSettings: GLOBAL_ARROW_SETTINGS
+    };
+    document.getElementById("backup-text-output").value = JSON.stringify(backupObj, null, 2);
+    alert("📤 バックアップJSONテキストを書き出しました。枠内をタップしてコピーしてください。");
+}
+
+function importBackupJSON() {
+    const jsonStr = document.getElementById("backup-text-input").value.trim();
+    if (!jsonStr) { alert("インポートするJSONデータを入力してください。"); return; }
+    
+    try {
+        const parsed = JSON.parse(jsonStr);
+        if (!parsed.menus || !parsed.arrowSettings) {
+            throw new Error("必要なデータフォーマット（menus / arrowSettings）が不足しています。");
+        }
+        
+        if (!confirm("⚠️ 取り込みを実行すると、現在のすべてのメニュー設定、カスタムメニュー、および矢印スピード設定が上書きされます。よろしいですか？")) {
+            return;
+        }
+        
+        MENUS = parsed.menus;
+        GLOBAL_ARROW_SETTINGS = parsed.arrowSettings;
+        
+        saveMenusToStorage();
+        localStorage.setItem("global_arrow_speeds", JSON.stringify(GLOBAL_ARROW_SETTINGS));
+        
+        alert("📥 データのインポートと復元がすべて成功しました！");
+        location.reload();
+    } catch(err) {
+        alert("❌ インポートに失敗しました。JSONデータが壊れているか、形式が間違っています。\nエラー内容: " + err.message);
     }
 }
 </script>
