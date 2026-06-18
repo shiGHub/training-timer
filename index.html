@@ -281,9 +281,9 @@ const DEFAULT_MENUS = {
         items: [
             parseSetsToItems("ラインホップ前後", 15, 30, 5, "none"), 
             parseSetsToItems("ラインホップ左右", 15, 30, 5, "none"), 
-            parseSetsToItems("片脚ラインホップ：12秒/脚", 12, 30, 3, "none"), 
+            parseSetsToItems("片脚ラインホップ：12秒/脚", 12, 30, 6, "none"), 
             parseSetsToItems("ポゴジャンプ", 12, 40, 5, "none"), 
-            parseSetsToItems("スプリット→任意方向ステップ：8回", 0, 45, 4, "none", true), 
+            parseSetsToItems("反応スプリット→任意方向ステップ：8回", 0, 45, 4, "step", true), 
             parseSetsToItems("チャイナステップ待機→ランダム方向反応ステップ", 12, 35, 5, "random"), 
             parseSetsToItems("スプリット→ランダム方向ステップ", 12, 40, 5, "none") 
         ] 
@@ -297,7 +297,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("スプリットスクワット：8回/脚", 0, 90, 3, "none", true), 
             parseSetsToItems("ヒップスラスト：8回", 0, 120, 3, "none", true), 
             parseSetsToItems("ノルディックハム：5回", 0, 90, 3, "none", true), 
-            parseSetsToItems("コペンハーゲンプランク：30秒/側", 30, 30, 3, "none", false), 
+            parseSetsToItems("コペンハーゲンプランク：30秒/側", 30, 30, 6, "none", false), 
             parseSetsToItems("プランク", 45, 30, 3, "none", false)
         ] 
     },
@@ -313,7 +313,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("高速連続シャドー", 15, 30, 10, "none"), 
             parseSetsToItems("前衛高速プッシュ連続", 15, 30, 8, "none"), 
             parseSetsToItems("フォーム維持シャドー", 40, 40, 6, "none"), 
-            parseSetsToItems("軽フットワーク流し", 300, 0, 1, "none", false)
+            parseSetsToItems("軽フットワーク流し", 300, 5, 1, "none", false)
         ] 
     },
     "DAY3_ALT": { 
@@ -322,26 +322,26 @@ const DEFAULT_MENUS = {
             parseSetsToItems("前後マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
             parseSetsToItems("左右マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
             parseSetsToItems("ランダム方向反応ステップ", 15, 45, 10, "step"), 
-            parseSetsToItems("スプリット→任意方向ステップ：10回", 0, 40, 6, "none", true), 
+            parseSetsToItems("反応スプリット→任意方向ステップ：10回", 0, 40, 6, "step", true), 
             parseSetsToItems("任意方向ステップ（止まらない）", 20, 45, 8, "none"), 
             parseSetsToItems("後方想定→前方向切り返し", 15, 45, 6, "none"), 
             parseSetsToItems("高速シャドーフットワーク（小幅）", 20, 30, 10, "none"), 
             parseSetsToItems("ランダム方向反応ステップ", 15, 30, 8, "step"), 
-            parseSetsToItems("スプリット→即スイング→即停止：10回", 0, 40, 6, "none", true), 
+            parseSetsToItems("スプリット→1歩出してスイング→即停止：10回", 0, 40, 6, "none", true), 
             parseSetsToItems("低姿勢ホールド＋微小ステップ", 40, 40, 6, "none"), 
             parseSetsToItems("構えリセット（完全静止→再構え）：10回", 0, 30, 3, "none", true), 
             parseSetsToItems("スイング後制動（完全停止意識）：12回", 0, 45, 4, "none", true), 
-            parseSetsToItems("軽フットワーク流し（その場）", 300, 0, 1, "none", false)
+            parseSetsToItems("軽フットワーク流し（その場）", 300, 5, 1, "none", false)
         ] 
     },
     "DAY4": { 
         title: "DAY4：積極回復＋循環", 
         items: [
-            parseSetsToItems("股関節モビリティ：10回/方向", 0, 0, 1, "none", true), 
-            parseSetsToItems("足首モビリティ：15回/脚", 0, 0, 1, "none", true), 
-            parseSetsToItems("胸椎モビリティ：10回/側", 0, 0, 1, "none", true), 
-            parseSetsToItems("Zone2ジョグ or バイク", 1050, 0, 1, "none", false), 
-            parseSetsToItems("足底リリース", 150, 0, 1, "none", false)
+            parseSetsToItems("股関節モビリティ：10回/方向", 0, 5, 1, "none", true), 
+            parseSetsToItems("足首モビリティ：15回/脚", 0, 5, 1, "none", true), 
+            parseSetsToItems("胸椎モビリティ：10回/側", 0, 5, 1, "none", true), 
+            parseSetsToItems("Zone2ジョグ or バイク", 1050, 5, 1, "none", false), 
+            parseSetsToItems("足底リリース", 150, 5, 2, "none", false)
         ] 
     },
     "DAY5": { 
@@ -351,7 +351,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("ブルガリアンジャンプ：4回/脚", 0, 90, 5, "none", true), 
             parseSetsToItems("スケータージャンプ：6回/側", 0, 60, 4, "none", true), 
             parseSetsToItems("ラテラルバウンド：5回/側", 0, 75, 4, "none", true), 
-            parseSetsToItems("片脚ホップ：5回/脚", 0, 60, 4, "none", true), 
+            parseSetsToItems("片脚ホップ：5回/脚", 0, 60, 8, "none", true), 
             parseSetsToItems("デプスジャンプ：3回", 0, 90, 4, "none", true), 
             parseSetsToItems("ポゴジャンプ", 12, 40, 4, "none", false)
         ] 
@@ -360,10 +360,10 @@ const DEFAULT_MENUS = {
         title: "DAY6：調整＋神経維持", 
         items: [
             parseSetsToItems("デッドバグ：10回", 0, 20, 2, "none", true), 
-            parseSetsToItems("YTW：10回", 0, 30, 2, "none", true), 
+            parseSetsToItems("YTWT：10回", 0, 30, 2, "none", true), 
             parseSetsToItems("チューブ外旋：15回", 0, 30, 2, "none", true), 
-            parseSetsToItems("股関節モビリティ：10回/方向", 0, 0, 1, "none", true), 
-            parseSetsToItems("足首モビリティ：15回/脚", 0, 0, 1, "none", true)
+            parseSetsToItems("股関節モビリティ：10回/方向", 0, 5, 1, "none", true), 
+            parseSetsToItems("足首モビリティ：15回/脚", 0, 5, 1, "none", true)
         ] 
     },
     "DAY7": { 
@@ -387,7 +387,7 @@ const DEFAULT_MENUS = {
         items: [
             parseSetsToItems("6方向想定ステップ（小幅）", 30, 45, 8, "none"), 
             parseSetsToItems("ランダム方向反応ステップ", 20, 45, 10, "step"), 
-            parseSetsToItems("スプリット→任意方向ステップ：12回", 0, 40, 6, "none", true), 
+            parseSetsToItems("反応スプリット→任意方向ステップ：12回", 0, 40, 6, "step", true), 
             parseSetsToItems("後方想定→前ネット切り返し", 15, 45, 8, "none"), 
             parseSetsToItems("左右連続切り返しステップ", 20, 40, 8, "none"), 
             parseSetsToItems("連続仮想ラリー移動（止まらない）", 30, 45, 6, "none"), 
@@ -396,8 +396,8 @@ const DEFAULT_MENUS = {
             parseSetsToItems("疲労下初動反応（動作遅延状態から開始）", 15, 45, 6, "none"), 
             parseSetsToItems("低姿勢維持→ランダム方向反応ステップ", 40, 40, 6, "step"), 
             parseSetsToItems("制御シャドー（崩れ防止）", 40, 40, 4, "none"), 
-            parseSetsToItems("スイング后完全停止ドリル：10回", 0, 45, 4, "none", true), 
-            parseSetsToItems("軽ステップ流し（リズム維持）", 300, 0, 1, "none", false)
+            parseSetsToItems("スイング後制動（完全停止意識）：10回", 0, 45, 4, "none", true), 
+            parseSetsToItems("軽ステップ流し（リズム維持）", 300, 5, 1, "none", false)
         ] 
     }
 };
@@ -431,10 +431,10 @@ const COMMON_WARMUP = [
 ];
 
 const COMMON_COOLDOWN = [
-    ...createSets("ふくらはぎストレッチ：30秒/側", 30, 0, 2, "none"),
-    ...createSets("足底ストレッチ", 30, 0, 2, "none"),
-    ...createSets("股関節ストレッチ：30秒/側", 30, 0, 2, "none"),
-    ...createSets("臀筋ストレッチ：30秒/側", 30, 0, 2, "none"),
+    ...createSets("ふくらはぎストレッチ：30秒/側", 30, 5, 2, "none"),
+    ...createSets("足底ストレッチ", 30, 5, 2, "none"),
+    ...createSets("股関節ストレッチ：30秒/側", 30, 5, 2, "none"),
+    ...createSets("臀筋ストレッチ：30秒/側", 30, 5, 2, "none"),
     { name: "胸椎回旋ストレッチ：10回/側 [1/1]", type: "count", duration: 0, arrowType: "none", fixedDelay: 0, enabledDirs: [] }
 ];
 
@@ -508,7 +508,7 @@ function refreshMainScreenSelect() {
 }
 
 function resetAllToDefault() {
-    const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定を工場出荷時のデフォルト状態に戻しますか？");
+    const firstCheck = confirm("⚠️ すべてのメニュー変更、作成したカスタムメニュー、および矢印の表示間隔設定をデフォルト状態に戻しますか？");
     if (!firstCheck) return;
 
     const secondCheck = confirm("本当に戻してもよろしいですか？（この操作は取り消せません）");
