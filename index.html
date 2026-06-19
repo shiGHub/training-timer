@@ -247,15 +247,15 @@
 // ●初期デフォルト設定の定義
 const INITIAL_ARROW_SETTINGS = {
     footwork: {
-        baseTimes: { 0: 2.5, 45: 2.5, 90: 2.0, 135: 3.0, 180: 3.0, 225: 3.0, 270: 2.0, 315: 2.5 },
+        baseTimes: { 0: 3.0, 45: 3.0, 90: 2.5, 135: 3.5, 180: 3.5, 225: 3.5, 270: 2.5, 315: 3.0 },
         delayMin: 0, delayMax: 0
     },
     step: {
-        baseTimes: { 0: 1.0, 45: 1.0, 90: 1.0, 135: 1.5, 180: 1.5, 225: 1.5, 270: 1.0, 315: 1.0 },
+        baseTimes: { 0: 1.5, 45: 1.5, 90: 1.5, 135: 2.0, 180: 2.0, 225: 2.0, 270: 1.5, 315: 1.5 },
         delayMin: 0, delayMax: 0
     },
     random: {
-        delayMin: 1.0, delayMax: 3.0
+        delayMin: 1.5, delayMax: 3.0
     }
 };
 
@@ -322,7 +322,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("前後マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
             parseSetsToItems("左右マイクロ移動（20〜40cm）", 20, 40, 8, "none"), 
             parseSetsToItems("ランダム方向反応ステップ", 15, 45, 10, "step"), 
-            parseSetsToItems("反応スプリット→任意方向ステップ：10回", 0, 40, 6, "step", true), 
+            parseSetsToItems("反応スプリット→任意方向ステップ：10回", 0, 40, 6, "random", true), 
             parseSetsToItems("任意方向ステップ（止まらない）", 20, 45, 8, "none"), 
             parseSetsToItems("後方想定→前方向切り返し", 15, 45, 6, "none"), 
             parseSetsToItems("高速シャドーフットワーク（小幅）", 20, 30, 10, "none"), 
@@ -387,7 +387,7 @@ const DEFAULT_MENUS = {
         items: [
             parseSetsToItems("6方向想定ステップ（小幅）", 30, 45, 8, "none"), 
             parseSetsToItems("ランダム方向反応ステップ", 20, 45, 10, "step"), 
-            parseSetsToItems("反応スプリット→任意方向ステップ：12回", 0, 40, 6, "step", true), 
+            parseSetsToItems("反応スプリット→任意方向ステップ：12回", 0, 40, 6, "random", true), 
             parseSetsToItems("後方想定→前ネット切り返し", 15, 45, 8, "none"), 
             parseSetsToItems("左右連続切り返しステップ", 20, 40, 8, "none"), 
             parseSetsToItems("連続仮想ラリー移動（止まらない）", 30, 45, 6, "none"), 
