@@ -596,6 +596,8 @@ function openArrowSettingsScreen() {
     container.innerHTML = "";
 
     let fwHtml = `<div class="settings-section"><div class="settings-title">🏃‍♂️ フットワーク表示間隔</div>`;
+    fwHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 4px 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('footwork', 0.1)">＋0.1秒</button>`;
+    fwHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 0 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('footwork', -0.1)">－0.1秒</button>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] : 2.0;
         fwHtml += `
@@ -616,6 +618,8 @@ function openArrowSettingsScreen() {
     </div>`;
 
     let stHtml = `<div class="settings-section"><div class="settings-title">👟 ステップ表示間隔</div>`;
+    stHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 4px 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('step', 0.1)">＋0.1秒</button>`;
+    stHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 0 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('step', -0.1)">－0.1秒</button>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] : 1.0;
         stHtml += `
@@ -917,7 +921,18 @@ function addNewItemRow(item = null) {
     updateSortButtons();
     card.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
-
+    
+function adjustAllBaseTimes(mode, amount) {
+    let selector = mode === 'footwork' ? '.fw-base' : '.st-base';
+    let inputs = document.querySelectorAll(selector);
+    inputs.forEach(input => {
+        let currentVal = parseFloat(input.value) || 0;
+        // 小数点の計算誤差を防ぐため10倍して四捨五入し、最低値を0.1秒に制限
+        let newVal = Math.max(0.1, Math.round((currentVal + amount) * 10) / 10);
+        input.value = newVal.toFixed(1);
+    });
+}
+    
 function handleItemNameInput(inputElement) {
     const card = inputElement.parentElement;
     const name = inputElement.value;
