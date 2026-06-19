@@ -595,9 +595,15 @@ function openArrowSettingsScreen() {
     const container = document.getElementById("arrow-settings-container");
     container.innerHTML = "";
 
-    let fwHtml = `<div class="settings-section"><div class="settings-title">🏃‍♂️ フットワーク表示間隔</div>`;
-    fwHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 4px 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('footwork', 0.1)">＋0.1秒</button>`;
-    fwHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 0 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('footwork', -0.1)">－0.1秒</button>`;
+    let fwHtml = `
+        <div class="settings-section">
+            <div class="settings-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span>🏃‍♂️ フットワーク表示間隔</span>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn-secondary btn-action-small" style="width:auto; padding:4px 8px; margin:0;" onclick="adjustAllBaseTimes('footwork', 0.1)">＋0.1秒</button>
+                    <button class="btn-secondary btn-action-small" style="width:auto; padding:4px 8px; margin:0;" onclick="adjustAllBaseTimes('footwork', -0.1)">－0.1秒</button>
+                </div>
+            </div>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.footwork.baseTimes[d.angle] : 2.0;
         fwHtml += `
@@ -617,9 +623,15 @@ function openArrowSettingsScreen() {
         </div>
     </div>`;
 
-    let stHtml = `<div class="settings-section"><div class="settings-title">👟 ステップ表示間隔</div>`;
-    stHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 4px 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('step', 0.1)">＋0.1秒</button>`;
-    stHtml += `  <button class="btn-secondary btn-action-small" style="width:auto; display:inline-block; margin: 0 0 10px 0; padding:4px 10px;" onclick="adjustAllBaseTimes('step', -0.1)">－0.1秒</button>`;
+    let stHtml = `
+        <div class="settings-section">
+            <div class="settings-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span>👟 ステップ表示間隔</span>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn-secondary btn-action-small" style="width:auto; padding:4px 8px; margin:0;" onclick="adjustAllBaseTimes('step', 0.1)">＋0.1秒</button>
+                    <button class="btn-secondary btn-action-small" style="width:auto; padding:4px 8px; margin:0;" onclick="adjustAllBaseTimes('step', -0.1)">－0.1秒</button>
+                </div>
+            </div>`;
     DIRECTION_MAP.forEach(d => {
         const val = GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] !== undefined ? GLOBAL_ARROW_SETTINGS.step.baseTimes[d.angle] : 1.0;
         stHtml += `
