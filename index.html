@@ -314,6 +314,7 @@ const DEFAULT_MENUS = {
             parseSetsToItems("前後2点ベース往復", 15, 40, 6, "none"), 
             parseSetsToItems("左右2点ベース往復", 15, 40, 6, "none"), 
             parseSetsToItems("6方向フットワーク（フォーム・戻り重視）", 15, 45, 10, "none"), 
+            parseSetsToItems("くの字ステップ：1週", 0, 45, 10, "step", true), 
             parseSetsToItems("スプリット→ランダム方向反応フットワーク", 15, 45, 10, "footwork"), 
             parseSetsToItems("ランダム方向反応フットワーク（流れ重視）", 15, 45, 10, "footwork"), 
             parseSetsToItems("後方打球→前ネット切り返し", 15, 45, 6, "none"), 
@@ -376,10 +377,10 @@ const DEFAULT_MENUS = {
     "DAY7": { 
         title: "DAY7：コート実戦統合（2時間）", 
         items: [
-            parseSetsToItems("6方向フットワーク（フォーム・戻り重視）", 30, 45, 8, "none"), 
-            parseSetsToItems("6方向フットワーク（スピード・切り返し重視）", 30, 45, 8, "none"), 
-            parseSetsToItems("ランダム方向反応フットワーク", 20, 45, 10, "footwork"), 
-            parseSetsToItems("後方スマッシュ→ベース戻り(縦)", 20, 40, 8, "none"), 
+            parseSetsToItems("6方向フットワーク（フォーム・戻り重視）", 30, 45, 6, "none"), 
+            parseSetsToItems("くの字フットワーク", 30, 45, 6, "none"), 
+            parseSetsToItems("ランダム方向反応フットワーク", 20, 45, 6, "footwork"), 
+            parseSetsToItems("後方スマッシュ→ベース戻り(縦)", 20, 40, 6, "none"), 
             parseSetsToItems("前衛左右プッシュ→中央戻り", 20, 30, 8, "none"), 
             parseSetsToItems("左右スマッシュ→ベース戻り(斜め)", 30, 45, 6, "none"), 
             parseSetsToItems("全面ラリー継続シャドー", 45, 45, 8, "none"), 
@@ -434,7 +435,8 @@ const COMMON_WARMUP = [
     ...createSets("ジョグ", 60, 30, 2, "none"),
     ...createSets("サイドステップ", 20, 20, 2, "none"),
     ...createSets("クロスステップ", 20, 20, 2, "none"),
-    ...createSets("軽チャイナステップ", 20, 30, 3, "none")
+    ...createSets("軽チャイナステップ", 20, 30, 3, "none"),
+    ...createSets("縄跳び", 20, 30, 3, "none")
 ];
 
 const COMMON_COOLDOWN = [
